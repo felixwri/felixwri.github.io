@@ -65,3 +65,11 @@ main {
         font-size: 30px;
     }
 }
+
+img {
+    position: absolute;
+    bottom: 0;
+    left: 1000px;
+    width: 512px;
+    image-rendering: pixelated;
+}

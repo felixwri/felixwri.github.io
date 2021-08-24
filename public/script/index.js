@@ -1,9 +1,10 @@
 let raindrops = [];
+let sprays = [];
 let objects = [];
+let sprites = {};
 
 // let windowWidth = globalThis.window.outerWidth;
 // let windowHeight = globalThis.window.outerHeight;
-
 function setup() {
     let canvas = createCanvas(windowWidth, windowHeight);
     // let canvas = createCanvas(globalThis.window.outerWidth, globalThis.window.outerHeight);
@@ -25,30 +26,44 @@ function windowResized() {
 
 function draw() {
     background('hsl(0, 0%, 13%)');
+    noSmooth();
 
     let fps = frameRate();
     fill(255);
     stroke(0);
 
-    // text('FPS: ' + fps.toFixed(2), 20, 20);
+    worldRenderer();
+
+    text('FPS: ' + fps.toFixed(2), 20, 20);
     // text(`${mouseX} ${mouseY}`, windowWidth / 2, windowHeight / 2);
 
     fill(100, 100, 255);
     stroke(100, 100, 255);
 
-    if (raindrops.length < 2000) {
+    if (raindrops.length < 500) {
         for (let i = 0; i < 5; i++) {
-            raindrops.push(new Raindrop(random(0, windowWidth), 0, { x: 0, y: random(0.05, 0.2) }, random(1, 4)));
+            let mass = random(1, 4);
+            raindrops.push(new Raindrop(random(0, windowWidth), 0, { x: 0, y: mass / 20 }, mass));
         }
     }
 
-    for (let i = 0; i < raindrops.length; i++) {
+    for (let i = raindrops.length - 1; i >= 0; i--) {
         allCollisions(raindrops[i]);
         raindrops[i].update();
         if (raindrops[i].killCheck()) {
             const index = raindrops.indexOf(raindrops[i]);
             if (index > -1) {
                 raindrops.splice(index, 1);
+            }
+        }
+    }
+
+    for (let i = sprays.length - 1; i >= 0; i--) {
+        sprays[i].update();
+        if (sprays[i].isExpired()) {
+            const index = sprays.indexOf(sprays[i]);
+            if (index > -1) {
+                sprays.splice(index, 1);
             }
         }
     }
@@ -118,6 +133,10 @@ class Raindrop {
         if (this.x > object.left && this.x < object.right && this.y > object.top && this.y < object.bottom) {
             this.velocity.y = random(-3, -1);
             this.velocity.x = random(-2, 2);
+
+            if (Math.random() > 0.9 && sprays.length < 300) {
+                sprays.push(new Spray(this.x, this.y, this.velocity));
+            }
         }
     }
 
@@ -128,6 +147,37 @@ class Raindrop {
             if (this.lifespan < 0) {
                 return true;
             }
+            return false;
+        }
+    }
+}
+
+class Spray {
+    constructor(x, y, velocity) {
+        this.x = x;
+        this.y = y;
+        this.velocity = velocity;
+
+        this.mass = random(10, 30);
+
+        this.lifespan = 100;
+    }
+
+    update() {
+        this.x = this.x + this.velocity.x / 2;
+        this.y = this.y + this.velocity.y / 2;
+
+        fill(100, 100, 255, this.lifespan / 4);
+        noStroke();
+        circle(this.x, this.y, this.mass);
+
+        this.lifespan--;
+    }
+
+    isExpired() {
+        if (this.lifespan <= 0) {
+            return true;
+        } else {
             return false;
         }
     }
