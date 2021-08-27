@@ -56,18 +56,20 @@ class Raindrop {
 
     killCheck() {
         if (this.y > windowHeight || this.x > windowWidth) {
-            this.x = this.reuse.initX;
-            this.y = this.reuse.initY;
+            this.x = random(0, windowWidth);
+            this.y = 0;
             this.velocity = { x: 0, y: 0 };
             this.acceleration = this.reuse.acceleration;
             this.lifespan = 180;
+            this.init();
         } else {
             if (this.lifespan < 0) {
-                this.x = this.reuse.initX;
-                this.y = this.reuse.initY;
+                this.x = random(0, windowWidth);
+                this.y = 0;
                 this.velocity = { x: 0, y: 0 };
                 this.acceleration = this.reuse.acceleration;
                 this.lifespan = 180;
+                this.init();
             }
             return;
         }

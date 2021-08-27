@@ -41,8 +41,8 @@ function setup() {
 }
 
 function windowResized() {
-    // objects = createObjects();
     resizeCanvas(windowWidth, windowHeight, true);
+    objects = createObjects();
 }
 
 function draw() {
@@ -114,72 +114,72 @@ function createObjects() {
 
     let treeOneLeftTwo = {
         x1: 1341,
-        y1: 577,
+        y1: windowHeight - 380,
         x2: 1377,
-        y2: 576
+        y2: windowHeight - 395
     };
 
     let treeOneLeft = {
         x1: 1376,
-        y1: 545,
+        y1: windowHeight - 440,
         x2: 1444,
-        y2: 465
+        y2: windowHeight - 510
     };
 
     let treeOneCenter = {
         x1: 1443,
-        y1: 464,
+        y1: windowHeight - 510,
         x2: 1524,
-        y2: 527
+        y2: windowHeight - 440
     };
 
     let treeOneRight = {
         x1: 1521,
-        y1: 556,
+        y1: windowHeight - 400,
         x2: 1561,
-        y2: 584
+        y2: windowHeight - 380
     };
 
-    let treeTwoRightTwo = {
+    let treeTwoLeftTwo = {
         x1: 831,
-        y1: 674,
+        y1: windowHeight - 287,
         x2: 891,
-        y2: 570
+        y2: windowHeight - 385
     };
 
-    let treeTwoRight = {
+    let treeTwoLeft = {
         x1: 878,
-        y1: 547,
+        y1: windowHeight - 420,
         x2: 954,
-        y2: 464
+        y2: windowHeight - 506
     };
 
     let treeTwoCenter = {
         x1: 952,
-        y1: 463,
+        y1: windowHeight - 506,
         x2: 1043,
-        y2: 571
+        y2: windowHeight - 390
     };
 
-    let treeTwoLeft = {
+    let treeTwoRight = {
         x1: 1045,
-        y1: 619,
+        y1: windowHeight - 360,
         x2: 1091,
-        y2: 622
+        y2: windowHeight - 350
     };
 
     let treeThreeRight = {
         x1: 582,
-        y1: 638,
+        y1: windowHeight - 331,
         x2: 651,
-        y2: 548
+        y2: windowHeight - 416
     };
 
     let treeThreeCenter = {
         x1: 648,
-        y1: 549,
+        y1: windowHeight - 417,
         x2: 734,
-        y2: 651
+        y2: windowHeight - 317
     };
 
     let floor = {
@@ -196,10 +196,10 @@ function createObjects() {
     objects.push(treeThreeRight);
     objects.push(treeThreeCenter);
 
-    objects.push(treeTwoRightTwo);
     objects.push(treeTwoRight);
     objects.push(treeTwoCenter);
     objects.push(treeTwoLeft);
+    objects.push(treeTwoLeftTwo);
 
     objects.push(treeOneLeft);
     objects.push(treeOneLeftTwo);
