@@ -8,7 +8,9 @@ let sprites = {};
 let smokeOne;
 
 //? Other Global Variables
-backgroundAlpha = 255;
+let particleLimit = 2000;
+let numberOfParticles;
+let backgroundAlpha = 255;
 
 function preload() {
     sprites.smokeOne = loadImage(`public/img/smokeOne.png`);
@@ -37,13 +39,29 @@ function setup() {
     canvas.style('z-index', -1);
     objects = createObjects();
     smokeOne = new Smoke(0, windowHeight, 256, 256, { x: 0.2, y: 0.1 }, sprites.smokeOne);
+
+    getNumberOfParticles();
+
     changeBackground();
 }
 
 function windowResized() {
     resizeCanvas(windowWidth, windowHeight, true);
     objects = createObjects();
+    getNumberOfParticles();
 }
+
+function getNumberOfParticles() {
+    if (windowWidth + 100 < particleLimit) {
+        numberOfParticles = windowWidth + 100;
+    } else {
+        numberOfParticles = particleLimit;
+    }
+}
+
+setInterval(() => {
+    document.getElementById('quantity-display').textContent = raindrops.length;
+}, 500);
 
 function draw() {
     clear();
@@ -61,13 +79,16 @@ function draw() {
 }
 
 function drawRaindrops() {
-    if (raindrops.length < 2400) {
+    if (raindrops.length < numberOfParticles) {
         for (let i = 0; i < 2; i++) {
             let mass = random(1, 4);
             let newRaindrop = new Raindrop(random(0, windowWidth), 0, { x: 0, y: mass / 20 }, mass);
             newRaindrop.init();
             raindrops.push(newRaindrop);
         }
+    } else if (raindrops.length > numberOfParticles) {
+        raindrops.pop();
+        raindrops.pop();
     }
 
     // noLoop();
@@ -168,18 +189,18 @@ function createObjects() {
         y2: windowHeight - 350
     };
 
-    let treeThreeRight = {
+    let treeThreeLeft = {
         x1: 582,
-        y1: windowHeight - 331,
+        y1: windowHeight - 350,
         x2: 651,
-        y2: windowHeight - 416
+        y2: windowHeight - 425
     };
 
     let treeThreeCenter = {
         x1: 648,
-        y1: windowHeight - 417,
+        y1: windowHeight - 425,
         x2: 734,
-        y2: windowHeight - 317
+        y2: windowHeight - 320
     };
 
     let floor = {
@@ -193,7 +214,7 @@ function createObjects() {
 
     objects.push(titleObj);
 
-    objects.push(treeThreeRight);
+    objects.push(treeThreeLeft);
     objects.push(treeThreeCenter);
 
     objects.push(treeTwoRight);
