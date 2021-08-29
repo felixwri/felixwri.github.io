@@ -1,23 +1,23 @@
 function worldRenderer() {
     let spriteDimentions = 512;
 
-    tint(200, 200, 200, 100);
+    tint(globalFog.r, globalFog.b, globalFog.g, globalFog.a - 130);
 
     image(sprites.backgroundTwo, -50, windowHeight - spriteDimentions / 2, spriteDimentions * 4, spriteDimentions / 2);
 
-    tint(200, 200, 200, 140);
+    tint(globalFog.r, globalFog.b, globalFog.g, globalFog.a - 90);
 
     image(sprites.backgroundOne, -50, windowHeight - spriteDimentions * 1.5, spriteDimentions * 4, spriteDimentions * 1.5);
 
-    tint(200, 200, 200, 200);
+    tint(globalFog.r, globalFog.b, globalFog.g, globalFog.a - 50);
 
     image(sprites.birchTwo, 100, windowHeight - spriteDimentions, spriteDimentions, spriteDimentions);
 
-    tint(200, 200, 200, 255);
+    tint(globalFog.r, globalFog.b, globalFog.g, globalFog.a);
 
     image(sprites.birchOne, 550, windowHeight - spriteDimentions, spriteDimentions, spriteDimentions);
 
-    tint(255, 255);
+    tint(globalFog.r, 255);
 
     // smokeOne.update();
 
@@ -35,12 +35,24 @@ function worldRenderer() {
 
 const timeline = gsap.timeline({ defaults: { ease: 'power1.out' } });
 
-function changeBackground() {
-    console.log('running');
+function transitionStart() {
+    timeline.fromTo(
+        '#defaultCanvas0',
+        { backgroundColor: 'rgba(33, 33, 33, 0)' },
+        { backgroundColor: 'rgba(33, 33, 33, 1)', duration: 1.5 },
+        '+=0.1'
+    );
+}
+
+function transitionEnd() {
     timeline.fromTo(
         '#defaultCanvas0',
         { backgroundColor: 'rgba(33, 33, 33, 1)' },
         { backgroundColor: 'rgba(33, 33, 33, 0)', duration: 1.5 },
         '+=0.1'
     );
+}
+
+function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
 }

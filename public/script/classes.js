@@ -132,6 +132,75 @@ class Smoke {
     }
 }
 
+class Sun {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.rise = 0;
+    }
+    update(amount) {
+        tint(255, 230, 230, this.rise);
+        image(sprites.sun, this.x, this.y, 256, 256);
+
+        if (amount === 1) {
+            if (this.rise < 255) this.rise += amount;
+        } else {
+            if (this.rise > 0) this.rise += amount;
+        }
+    }
+}
+
+class Snowflake {
+    constructor(initialX, initialY, acceleration, mass) {
+        this.x = initialX;
+        this.y = initialY;
+        this.velocity = { x: 0, y: 0 };
+        this.acceleration = acceleration;
+        this.mass = mass;
+        this.lifespan = 1000;
+
+        this.collision;
+    }
+
+    init() {
+        this.collision = allCollisions(this.x, this.y);
+        // console.log(this.collision);
+        if (!this.collision) console.error('no collisions is impossible');
+    }
+
+    update() {
+        if (this.collision.y <= this.y && this.collision.object.x1 < this.x && this.collision.object.x2 > this.x) {
+            this.velocity.y = 0;
+            this.acceleration.y = 0;
+        }
+
+        if (this.velocity.y < 2) {
+            this.velocity.x = this.velocity.x + this.acceleration.x;
+            this.velocity.y = this.velocity.y + this.acceleration.y;
+        }
+
+        this.x = this.x + this.velocity.x;
+        this.y = this.y + this.velocity.y;
+
+        // strokeWeight(this.mass);
+        fill(255, 255, 255, this.lifespan);
+        circle(this.x, this.y, this.mass * 25);
+        this.lifespan--;
+    }
+
+    killCheck() {
+        if (this.lifespan < 0 || this.y > windowHeight || this.x > windowWidth) {
+            this.x = random(0, windowWidth);
+            this.y = 0;
+            this.velocity = { x: 0, y: 0 };
+            this.acceleration = { x: 0, y: this.mass / 50 };
+            this.lifespan = 1000;
+            this.init();
+        }
+        return;
+    }
+}
+
 function reflection(collisionLine, collisionPoint) {
     // calculate the normal to the collision line
     let dx = collisionLine.x2 - collisionLine.x1;
