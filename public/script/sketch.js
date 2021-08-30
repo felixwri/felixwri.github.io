@@ -1,6 +1,7 @@
 //? PARTICLE ARRAYS
 let raindrops = [];
 let snowflakes = [];
+let fireflys = [];
 let sprays = [];
 
 //? OBJECT ARRAYS
@@ -20,6 +21,7 @@ let backgroundAlpha = 255;
 function preload() {
     sprites.sun = loadImage(`public/img/sun.png`);
     sprites.moon = loadImage(`public/img/moon.png`);
+    sprites.firefly = loadImage(`public/img/firefly.png`);
 
     sprites.backgroundOne = loadImage(`public/img/backgroundOne.png`);
     sprites.backgroundThree = loadImage(`public/img/backgroundThree.png`);
@@ -47,7 +49,7 @@ function setup() {
     canvas.style('z-index', -1);
     objects = createObjects();
     sun = new Sun(1000, 120);
-    moon = new Moon(600, 200);
+    moon = new Moon(1000, 100);
 
     getNumberOfParticles();
 
@@ -198,6 +200,9 @@ function draw() {
         snowflakes.pop();
         // snowflakes.pop();
     }
+    if (weatherType === 3) {
+        drawFireflys();
+    }
 
     fogTransition(nextFog);
     // drawHitboxes();
@@ -235,8 +240,8 @@ function drawRaindrops(stop) {
 }
 
 function drawSnowflakes(stop) {
-    if (snowflakes.length < numberOfParticles / 2 && !stop) {
-        if (Math.random() > 0.5) {
+    if (snowflakes.length < numberOfParticles / 1.5 && !stop) {
+        if (Math.random() > 0) {
             let mass = random(0.1, 0.4);
             let newSnowflakes = new Snowflake(random(0, windowWidth), -20, { x: 0, y: mass / 50 }, mass);
             newSnowflakes.init();
@@ -253,6 +258,19 @@ function drawSnowflakes(stop) {
         // allCollisions(raindrops[i]);
         snowflakes[i].update();
         snowflakes[i].killCheck();
+    }
+}
+
+function drawFireflys() {
+    if (fireflys.length < 30) {
+        if (Math.random() > 0.5) {
+            let newFirefly = new Firefly(random(0, windowWidth), random(windowHeight - 400, windowHeight));
+            fireflys.push(newFirefly);
+        }
+    }
+
+    for (let i = fireflys.length - 1; i >= 0; i--) {
+        fireflys[i].update();
     }
 }
 

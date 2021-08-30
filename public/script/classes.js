@@ -158,7 +158,7 @@ class Moon {
     }
     update(amount) {
         tint(255, 230, 230, this.rise);
-        image(sprites.moon, this.x, this.y, 256, 256);
+        image(sprites.moon, this.x, this.y, 128, 128);
 
         if (amount === 1) {
             if (this.rise < 255) this.rise += amount;
@@ -175,7 +175,7 @@ class Snowflake {
         this.velocity = { x: 0, y: 0 };
         this.acceleration = acceleration;
         this.mass = mass;
-        this.lifespan = 1000;
+        this.lifespan = 1250;
 
         this.collision;
     }
@@ -187,7 +187,7 @@ class Snowflake {
     }
 
     update() {
-        if (this.collision.y <= this.y && this.collision.object.x1 < this.x && this.collision.object.x2 > this.x && Math.random() > 0.8) {
+        if (this.collision.y <= this.y && this.collision.object.x1 < this.x && this.collision.object.x2 > this.x && Math.random() > 0.9) {
             this.velocity.y = 0;
             this.acceleration.y = 0;
         }
@@ -202,20 +202,46 @@ class Snowflake {
 
         // strokeWeight(this.mass);
         fill(255, 255, 255, this.lifespan);
-        circle(this.x, this.y, this.mass * 25);
+        circle(this.x, this.y, this.mass * 30);
         this.lifespan--;
     }
 
     killCheck() {
         if (this.lifespan < 0 || this.y > windowHeight || this.x > windowWidth) {
             this.x = random(0, windowWidth);
-            this.y = 0;
-            this.velocity = { x: 0, y: 0 };
+            this.y = -30;
+            this.velocity = { x: 0, y: random(0, 0.1) };
             this.acceleration = { x: 0, y: this.mass / 50 };
-            this.lifespan = 1000;
+            this.lifespan = random(1000, 2000);
             this.init();
         }
         return;
+    }
+}
+
+class Firefly {
+    constructor(initialX, initialY) {
+        this.x = initialX;
+        this.y = initialY;
+        this.velocity = { x: random(-0.1, 0.1), y: random(-0.1, 0.1) };
+
+        this.lifespan = 0;
+    }
+
+    update() {
+        this.x = this.x + this.velocity.x;
+        this.y = this.y + this.velocity.y;
+
+        if (Math.random() > 0.999) {
+            this.velocity = { x: random(-0.1, 0.1), y: random(-0.1, 0.1) };
+        }
+
+        if (this.lifespan < 255) {
+            tint(255, 255, 255, this.lifespan);
+            this.lifespan++;
+        }
+        smooth();
+        image(sprites.firefly, this.x, this.y, 32, 32);
     }
 }
 
