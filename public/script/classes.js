@@ -150,6 +150,24 @@ class Sun {
     }
 }
 
+class Moon {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.rise = 0;
+    }
+    update(amount) {
+        tint(255, 230, 230, this.rise);
+        image(sprites.moon, this.x, this.y, 256, 256);
+
+        if (amount === 1) {
+            if (this.rise < 255) this.rise += amount;
+        } else {
+            if (this.rise > 0) this.rise += amount;
+        }
+    }
+}
+
 class Snowflake {
     constructor(initialX, initialY, acceleration, mass) {
         this.x = initialX;
@@ -169,7 +187,7 @@ class Snowflake {
     }
 
     update() {
-        if (this.collision.y <= this.y && this.collision.object.x1 < this.x && this.collision.object.x2 > this.x) {
+        if (this.collision.y <= this.y && this.collision.object.x1 < this.x && this.collision.object.x2 > this.x && Math.random() > 0.8) {
             this.velocity.y = 0;
             this.acceleration.y = 0;
         }

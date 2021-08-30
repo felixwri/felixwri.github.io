@@ -7,10 +7,11 @@ let sprays = [];
 let objects = [];
 let sprites = {};
 let sun;
+let moon;
 
 //? Other Global Variables
-let globalFog = { r: 200, g: 200, b: 200, a: 255 };
-let nextFog = { r: 200, g: 200, b: 200, a: 255 };
+let globalFog = { r: 200, g: 200, b: 200, a: 255, l: 0 };
+let nextFog = { r: 200, g: 200, b: 200, a: 255, l: 0 };
 let weatherType = Math.round(Math.random() * 3);
 let particleLimit = 2000;
 let numberOfParticles;
@@ -18,17 +19,21 @@ let backgroundAlpha = 255;
 
 function preload() {
     sprites.sun = loadImage(`public/img/sun.png`);
+    sprites.moon = loadImage(`public/img/moon.png`);
 
     sprites.backgroundOne = loadImage(`public/img/backgroundOne.png`);
-    sprites.backgroundTwo = loadImage(`public/img/backgroundTwo.png`);
+    sprites.backgroundThree = loadImage(`public/img/backgroundThree.png`);
 
     sprites.floorOne = loadImage(`public/img/floorOne.png`);
     sprites.floorTwo = loadImage(`public/img/floorTwo.png`);
-    sprites.lamp = loadImage(`public/img/lamp.png`);
+    // sprites.lamp = loadImage(`public/img/lamp.png`);
 
     sprites.firOne = loadImage(`public/img/firOne.png`);
     sprites.firTwo = loadImage(`public/img/firTwo.png`);
-    sprites.firThree = loadImage(`public/img/firThree.png`);
+    // sprites.firThree = loadImage(`public/img/firThree.png`);
+
+    sprites.lampCombindedOff = loadImage(`public/img/lampCombindedOff.png`);
+    sprites.lampCombindedOn = loadImage(`public/img/lampCombindedOn.png`);
 
     sprites.birchOne = loadImage(`public/img/birchOne.png`);
     sprites.birchTwo = loadImage(`public/img/birchTwo.png`);
@@ -42,6 +47,7 @@ function setup() {
     canvas.style('z-index', -1);
     objects = createObjects();
     sun = new Sun(1000, 120);
+    moon = new Moon(600, 200);
 
     getNumberOfParticles();
 
@@ -54,25 +60,25 @@ function weather() {
     switch (weatherType) {
         case 0:
             //Sun
-            nextFog = { r: 255, g: 255, b: 255, a: 255 };
+            nextFog = { r: 255, g: 255, b: 255, a: 255, l: 0 };
             body.style.background = 'linear-gradient(hsl(224, 82%, 57%), hsl(22, 50%, 44%)) fixed';
             break;
 
         case 1:
             //Rain
-            nextFog = { r: 150, g: 150, b: 200, a: 200 };
+            nextFog = { r: 150, g: 150, b: 200, a: 200, l: 200 };
             body.style.background = 'linear-gradient(hsl(221, 25%, 24%), hsl(230, 10%, 5%)) fixed';
             break;
 
         case 2:
             //Snow
-            nextFog = { r: 255, g: 255, b: 255, a: 160 };
+            nextFog = { r: 255, g: 255, b: 255, a: 160, l: 0 };
             body.style.background = 'linear-gradient(hsl(225, 26%, 45%), hsl(0, 0%, 45%)) fixed';
             break;
 
         case 3:
             //Night
-            nextFog = { r: 60, g: 60, b: 60, a: 200 };
+            nextFog = { r: 60, g: 60, b: 60, a: 200, l: 255 };
             body.style.background = 'linear-gradient(hsl(221, 25%, 12%), hsl(0, 0%, 0%)) fixed';
             break;
 
@@ -127,6 +133,14 @@ function fogTransition(nextFog) {
             globalFog.a--;
         }
     }
+
+    if (globalFog.l !== nextFog.l) {
+        if (globalFog.l < nextFog.l) {
+            globalFog.l++;
+        } else {
+            globalFog.l--;
+        }
+    }
 }
 
 // setInterval(() => {
@@ -144,32 +158,53 @@ function draw() {
         sun.update(-1);
     }
 
+    if (weatherType === 3) {
+        moon.update(1);
+    } else {
+        moon.update(-1);
+    }
+
     worldRenderer();
 
     if (weatherType === 1) {
         strokeWeight(2);
         fill(100, 100, 255);
         stroke(100, 100, 255);
-        drawRaindrops();
+        drawRaindrops(false);
     } else if (weatherType === 2) {
         fill(255, 255, 255);
         noStroke();
-        drawSnowflakes();
+        drawSnowflakes(false);
     }
 
-    if (weatherType !== 1) {
+    if (weatherType !== 1 && raindrops.length > 0) {
+        if (weatherType === 0) {
+            strokeWeight(2);
+            fill(200, 200, 255);
+            stroke(200, 200, 255);
+        } else {
+            strokeWeight(2);
+            fill(100, 100, 255);
+            stroke(100, 100, 255);
+        }
+        drawRaindrops(true);
+        raindrops.pop();
         raindrops.pop();
     }
-    if (weatherType !== 2) {
+    if (weatherType !== 2 && snowflakes.length > 0) {
+        fill(255, 255, 255);
+        noStroke();
+        drawSnowflakes(true);
         snowflakes.pop();
+        // snowflakes.pop();
     }
 
     fogTransition(nextFog);
     // drawHitboxes();
 }
 
-function drawRaindrops() {
-    if (raindrops.length < numberOfParticles) {
+function drawRaindrops(stop) {
+    if (raindrops.length < numberOfParticles && !stop) {
         for (let i = 0; i < 2; i++) {
             let mass = random(1, 4);
             let newRaindrop = new Raindrop(random(0, windowWidth), 0, { x: 0, y: mass / 20 }, mass);
@@ -184,7 +219,6 @@ function drawRaindrops() {
     // noLoop();
 
     for (let i = raindrops.length - 1; i >= 0; i--) {
-        // allCollisions(raindrops[i]);
         raindrops[i].update();
         raindrops[i].killCheck();
     }
@@ -200,8 +234,8 @@ function drawRaindrops() {
     }
 }
 
-function drawSnowflakes() {
-    if (snowflakes.length < numberOfParticles / 2) {
+function drawSnowflakes(stop) {
+    if (snowflakes.length < numberOfParticles / 2 && !stop) {
         if (Math.random() > 0.5) {
             let mass = random(0.1, 0.4);
             let newSnowflakes = new Snowflake(random(0, windowWidth), -20, { x: 0, y: mass / 50 }, mass);
@@ -232,6 +266,7 @@ function drawHitboxes() {
 
 function mousePressed() {
     console.log(mouseX, mouseY);
+    console.log(windowHeight - mouseY);
 }
 
 function createObjects() {
@@ -244,6 +279,7 @@ function createObjects() {
         x2: titleBoundary.x + titleBoundary.width,
         y2: titleBoundary.y + titleBoundary.height / 4
     };
+    objects.push(titleObj);
 
     let treeOneLeftTwo = {
         x1: 1341,
@@ -273,47 +309,68 @@ function createObjects() {
         y2: windowHeight - 380
     };
 
+    objects.push(treeOneLeft);
+    objects.push(treeOneLeftTwo);
+    objects.push(treeOneCenter);
+    objects.push(treeOneRight);
+
     let treeTwoLeftTwo = {
-        x1: 831,
-        y1: windowHeight - 287,
-        x2: 891,
-        y2: windowHeight - 385
+        x1: 1055,
+        y1: windowHeight - 384,
+        x2: 1100,
+        y2: windowHeight - 446
     };
 
     let treeTwoLeft = {
-        x1: 878,
-        y1: windowHeight - 420,
-        x2: 954,
-        y2: windowHeight - 506
+        x1: 1010,
+        y1: windowHeight - 303,
+        x2: 1053,
+        y2: windowHeight - 341
     };
 
     let treeTwoCenter = {
-        x1: 952,
-        y1: windowHeight - 506,
-        x2: 1043,
-        y2: windowHeight - 390
+        x1: 1100,
+        y1: windowHeight - 448,
+        x2: 1177,
+        y2: windowHeight - 374
     };
 
     let treeTwoRight = {
-        x1: 1045,
-        y1: windowHeight - 360,
-        x2: 1091,
-        y2: windowHeight - 350
+        x1: 1166,
+        y1: windowHeight - 330,
+        x2: 1217,
+        y2: windowHeight - 326
+    };
+
+    objects.push(treeTwoLeft);
+    objects.push(treeTwoLeftTwo);
+    objects.push(treeTwoCenter);
+    objects.push(treeTwoRight);
+
+    let treeThreeLeftTwo = {
+        x1: 670,
+        y1: windowHeight - 290,
+        x2: 723,
+        y2: windowHeight - 376
     };
 
     let treeThreeLeft = {
-        x1: 582,
-        y1: windowHeight - 350,
-        x2: 651,
-        y2: windowHeight - 425
+        x1: 721,
+        y1: windowHeight - 377,
+        x2: 812,
+        y2: windowHeight - 265
     };
 
     let treeThreeCenter = {
-        x1: 648,
-        y1: windowHeight - 425,
-        x2: 734,
-        y2: windowHeight - 320
+        x1: 811,
+        y1: windowHeight - 253,
+        x2: 843,
+        y2: windowHeight - 232
     };
+
+    objects.push(treeThreeLeft);
+    objects.push(treeThreeLeftTwo);
+    objects.push(treeThreeCenter);
 
     let floor = {
         x1: 0,
@@ -321,23 +378,6 @@ function createObjects() {
         x2: windowWidth,
         y2: windowHeight - 10
     };
-
-    //? Height Order
-
-    objects.push(titleObj);
-
-    objects.push(treeThreeLeft);
-    objects.push(treeThreeCenter);
-
-    objects.push(treeTwoRight);
-    objects.push(treeTwoCenter);
-    objects.push(treeTwoLeft);
-    objects.push(treeTwoLeftTwo);
-
-    objects.push(treeOneLeft);
-    objects.push(treeOneLeftTwo);
-    objects.push(treeOneCenter);
-    objects.push(treeOneRight);
 
     objects.push(floor);
     return objects;
