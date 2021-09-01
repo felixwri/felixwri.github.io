@@ -154,10 +154,25 @@ main {
     width: 100%;
 }
 
+#magnifine-glass {
+    cursor: pointer;
+    fill: white;
+
+    transition: fill 0.2s ease;
+}
+
+#magnifine-glass:hover {
+    fill: rgb(134, 134, 134);
+}
+
 @media (max-width: 520px) {
     #welcome {
         left: 30px;
         font-size: 30px;
+    }
+    #settings-container {
+        top: 130px;
+        left: 30px;
     }
 
     #welcome::before {

@@ -1,40 +1,39 @@
 function worldRenderer() {
-    let spriteDimentions = 512;
+    const offset = -100;
+    tint(globalFog.r, globalFog.g, globalFog.b);
+    image(sprites.background, offset, windowHeight - spriteDimentions * 1.5, spriteDimentions * 4, spriteDimentions * 1.5);
+    if (!isMobile) {
+        if (zoomLevel === 256) {
+            image(
+                sprites.background,
+                spriteDimentions * 5 + offset,
+                windowHeight - spriteDimentions * 1.5,
+                spriteDimentions * 4,
+                spriteDimentions * 1.5
+            );
+        }
+        image(sprites.background, spriteDimentions * 3 + offset, windowHeight - spriteDimentions * 1.5, spriteDimentions * 4, spriteDimentions * 1.5);
 
-    tint(globalFog.r, globalFog.b, globalFog.g, globalFog.a - 130);
+        if (weatherType === 3) {
+            drawFireflys(true, false);
+            noSmooth();
+            tint(globalFog.r, globalFog.g, globalFog.b);
+        }
+        image(sprites.foreground, offset, windowHeight - spriteDimentions, spriteDimentions * 4, spriteDimentions);
+        image(sprites.sceneOff, spriteDimentions / 1.5 + offset, windowHeight - spriteDimentions, spriteDimentions * 3, spriteDimentions);
 
-    image(sprites.backgroundThree, -50, windowHeight - spriteDimentions * 1.5, spriteDimentions * 4, spriteDimentions * 1.5);
+        tint(255, globalFog.l);
 
-    tint(globalFog.r, globalFog.b, globalFog.g, globalFog.a - 90);
+        image(sprites.sceneOn, spriteDimentions / 1.5 + offset, windowHeight - spriteDimentions, spriteDimentions * 3, spriteDimentions);
+    } else if (windowWidth > 925) {
+        image(sprites.background, spriteDimentions * 3 + offset, windowHeight - spriteDimentions * 1.5, spriteDimentions * 4, spriteDimentions * 1.5);
+    }
 
-    image(sprites.backgroundOne, -50, windowHeight - spriteDimentions * 1.5, spriteDimentions * 4, spriteDimentions * 1.5);
-
-    tint(globalFog.r, globalFog.b, globalFog.g, globalFog.a - 50);
-
-    image(sprites.birchTwo, 100, windowHeight - spriteDimentions, spriteDimentions, spriteDimentions);
-
-    tint(globalFog.r, globalFog.b, globalFog.g, globalFog.a);
-
-    // image(sprites.birchOne, 550, windowHeight - spriteDimentions, spriteDimentions, spriteDimentions);
-
-    tint(globalFog.r, 255);
-
-    // smokeOne.update();
-
-    // image(sprites.lamp, 550, windowHeight - spriteDimentions, spriteDimentions, spriteDimentions);
-
-    image(sprites.firOne, -100, windowHeight - spriteDimentions, spriteDimentions, spriteDimentions);
-    image(sprites.firOne, 1200, windowHeight - spriteDimentions, spriteDimentions, spriteDimentions);
-    image(sprites.lampCombindedOff, 400, windowHeight - spriteDimentions, spriteDimentions * 2, spriteDimentions);
-
-    // image(sprites.firThree, 400, windowHeight - spriteDimentions, spriteDimentions, spriteDimentions);
-
-    image(sprites.floorOne, 0, windowHeight - spriteDimentions, spriteDimentions * 2, spriteDimentions);
-    image(sprites.floorTwo, 800, windowHeight - spriteDimentions, spriteDimentions * 2, spriteDimentions);
-    image(sprites.floorOne, 700, windowHeight - spriteDimentions, spriteDimentions * 2, spriteDimentions);
-
-    tint(255, globalFog.l);
-    image(sprites.lampCombindedOn, 400, windowHeight - spriteDimentions, spriteDimentions * 2, spriteDimentions);
+    if (spriteDimentions > zoomLevel) {
+        spriteDimentions--;
+    } else if (zoomLevel > spriteDimentions) {
+        spriteDimentions++;
+    }
 }
 
 const timeline = gsap.timeline({ defaults: { ease: 'power1.out' } });

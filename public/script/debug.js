@@ -1,6 +1,5 @@
-let secondAverageFramesPerSecond = [];
-let minuteAverageFramesPerSecond = [];
-let performanceReport = {};
+let averageFramesPerSecond = [];
+let currentAverage = 60;
 let fps = 0;
 
 function debug() {
@@ -12,31 +11,14 @@ function debug() {
     };
 
     fps = frameRate();
-    secondAverageFramesPerSecond.push(fps);
+    averageFramesPerSecond.push(fps);
 
-    if (minuteAverageFramesPerSecond.length % 60 === 0 && minuteAverageFramesPerSecond.length !== 0) {
-        // console.clear();
-        performanceReport.averageMinute = average(minuteAverageFramesPerSecond);
-        console.log(`MINUTE REPORT\nRecent Minute: ${performanceReport.averageMinute}\n`);
-        minuteAverageFramesPerSecond = [];
+    if (averageFramesPerSecond.length % 60 === 0 && averageFramesPerSecond.length !== 0) {
+        currentAverage = Math.round(average(averageFramesPerSecond));
+        console.log(currentAverage);
+        averageFramesPerSecond = [];
+        if (currentAverage < 40) {
+            numberOfParticles = 100;
+        }
     }
-
-    if (secondAverageFramesPerSecond.length % 60 === 0 && secondAverageFramesPerSecond.length !== 0) {
-        performanceReport.averageSecond = average(secondAverageFramesPerSecond);
-        minuteAverageFramesPerSecond.push(performanceReport.averageSecond);
-        secondAverageFramesPerSecond = [];
-    }
-
-    if (
-        secondAverageFramesPerSecond.length % 60 === 0 &&
-        minuteAverageFramesPerSecond.length % 10 === 0 &&
-        minuteAverageFramesPerSecond.length !== 0
-    ) {
-        performanceReport.averageMinute = average(minuteAverageFramesPerSecond);
-        console.log(`Current Average: ${performanceReport.averageMinute}\n`);
-    }
-    // fill(255);
-    // stroke(0);
-    // text(`Average FPS: ${previousAverageFrames} `, 20, 20);
-    // text(`${mouseX} ${mouseY}`, windowWidth / 3, windowHeight / 3);
 }

@@ -16,7 +16,6 @@ class Raindrop {
 
     init() {
         this.collision = allCollisions(this.x, this.y);
-        // console.log(this.collision);
         if (!this.collision) console.error('no collisions is impossible');
     }
 
@@ -24,7 +23,6 @@ class Raindrop {
         if (this.collision.y <= this.y && this.collision.object.x1 < this.x && this.collision.object.x2 > this.x) {
             let choice = Math.random();
             if (choice < 0.5) {
-                // let vel = reflection(this.collision.object, { x: this.collision.x, y: this.collision.y });
                 let vel = {
                     x: random(-1, 1),
                     y: random(-2, -0.5)
@@ -49,7 +47,6 @@ class Raindrop {
         this.x = this.x + this.velocity.x;
         this.y = this.y + this.velocity.y;
 
-        // strokeWeight(this.mass);
         line(this.x, this.y, oldX, oldY);
         this.lifespan--;
     }
@@ -182,7 +179,6 @@ class Snowflake {
 
     init() {
         this.collision = allCollisions(this.x, this.y);
-        // console.log(this.collision);
         if (!this.collision) console.error('no collisions is impossible');
     }
 
@@ -192,7 +188,7 @@ class Snowflake {
             this.acceleration.y = 0;
         }
 
-        if (this.velocity.y < 2) {
+        if (this.velocity.y < 2 * (1 + this.mass)) {
             this.velocity.x = this.velocity.x + this.acceleration.x;
             this.velocity.y = this.velocity.y + this.acceleration.y;
         }
@@ -220,15 +216,19 @@ class Snowflake {
 }
 
 class Firefly {
-    constructor(initialX, initialY) {
+    constructor(initialX, initialY, zLevel) {
         this.x = initialX;
         this.y = initialY;
         this.velocity = { x: random(-0.1, 0.1), y: random(-0.1, 0.1) };
+        this.zLevel = zLevel;
 
         this.lifespan = 0;
+
+        this.size = random([16, 24, 32]);
     }
 
-    update() {
+    update(zLevel) {
+        if (this.zLevel !== zLevel) return;
         this.x = this.x + this.velocity.x;
         this.y = this.y + this.velocity.y;
 
@@ -237,11 +237,18 @@ class Firefly {
         }
 
         if (this.lifespan < 255) {
-            tint(255, 255, 255, this.lifespan);
             this.lifespan++;
         }
-        smooth();
-        image(sprites.firefly, this.x, this.y, 32, 32);
+
+        tint(255, 255, 255, this.lifespan);
+
+        if (isMobile) {
+            smooth();
+            image(sprites.firefly, this.x * (spriteDimentions / 256), this.y, spriteDimentions / this.size, spriteDimentions / this.size);
+        } else {
+            smooth();
+            image(sprites.firefly, this.x * (spriteDimentions / 512), this.y, spriteDimentions / this.size, spriteDimentions / this.size);
+        }
     }
 }
 

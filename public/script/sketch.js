@@ -13,43 +13,43 @@ let moon;
 //? Other Global Variables
 let globalFog = { r: 200, g: 200, b: 200, a: 255, l: 0 };
 let nextFog = { r: 200, g: 200, b: 200, a: 255, l: 0 };
-let weatherType = Math.round(Math.random() * 3);
+let weatherType = 0;
+// let weatherType = Math.round(Math.random() * 3);
 let particleLimit = 2000;
 let numberOfParticles;
 let backgroundAlpha = 255;
+let spriteDimentions = 512;
+let zoomLevel = 512;
+const isMobile = 'ontouchstart' in document.documentElement && /mobi/i.test(navigator.userAgent);
 
 function preload() {
     sprites.sun = loadImage(`public/img/sun.png`);
     sprites.moon = loadImage(`public/img/moon.png`);
     sprites.firefly = loadImage(`public/img/firefly.png`);
 
-    sprites.backgroundOne = loadImage(`public/img/backgroundOne.png`);
-    sprites.backgroundThree = loadImage(`public/img/backgroundThree.png`);
-
-    sprites.floorOne = loadImage(`public/img/floorOne.png`);
-    sprites.floorTwo = loadImage(`public/img/floorTwo.png`);
-    // sprites.lamp = loadImage(`public/img/lamp.png`);
-
-    sprites.firOne = loadImage(`public/img/firOne.png`);
-    sprites.firTwo = loadImage(`public/img/firTwo.png`);
-    // sprites.firThree = loadImage(`public/img/firThree.png`);
+    sprites.background = loadImage(`public/img/backgroundMaster.png`);
+    sprites.foreground = loadImage(`public/img/foregroundMaster.png`);
 
     sprites.lampCombindedOff = loadImage(`public/img/lampCombindedOff.png`);
     sprites.lampCombindedOn = loadImage(`public/img/lampCombindedOn.png`);
 
-    sprites.birchOne = loadImage(`public/img/birchOne.png`);
-    sprites.birchTwo = loadImage(`public/img/birchTwo.png`);
-
-    sprites.firOneSkeleton = loadImage(`public/img/firOneSkeleton.png`);
+    sprites.sceneOff = loadImage(`public/img/sceneOff.png`);
+    sprites.sceneOn = loadImage(`public/img/sceneOn.png`);
 }
 
 function setup() {
     let canvas = createCanvas(windowWidth, windowHeight);
     canvas.parent('canvas-container');
     canvas.style('z-index', -1);
+    if (isMobile) {
+        spriteDimentions = 256;
+        zoomLevel = 256;
+    } else {
+        spriteDimentions = 512;
+    }
     objects = createObjects();
-    sun = new Sun(1000, 120);
-    moon = new Moon(1000, 100);
+    sun = new Sun(spriteDimentions, 120);
+    moon = new Moon(spriteDimentions, 100);
 
     getNumberOfParticles();
 
@@ -62,25 +62,25 @@ function weather() {
     switch (weatherType) {
         case 0:
             //Sun
-            nextFog = { r: 255, g: 255, b: 255, a: 255, l: 0 };
-            body.style.background = 'linear-gradient(hsl(224, 82%, 57%), hsl(22, 50%, 44%)) fixed';
+            nextFog = { r: 255, g: 240, b: 220, l: 0 };
+            body.style.background = 'linear-gradient(hsl(224, 60%, 57%), hsl(22, 50%, 44%)) fixed';
             break;
 
         case 1:
             //Rain
-            nextFog = { r: 150, g: 150, b: 200, a: 200, l: 200 };
+            nextFog = { r: 140, g: 180, b: 180, l: 200 };
             body.style.background = 'linear-gradient(hsl(221, 25%, 24%), hsl(230, 10%, 5%)) fixed';
             break;
 
         case 2:
             //Snow
-            nextFog = { r: 255, g: 255, b: 255, a: 160, l: 0 };
+            nextFog = { r: 200, g: 200, b: 200, l: 0 };
             body.style.background = 'linear-gradient(hsl(225, 26%, 45%), hsl(0, 0%, 45%)) fixed';
             break;
 
         case 3:
             //Night
-            nextFog = { r: 60, g: 60, b: 60, a: 200, l: 255 };
+            nextFog = { r: 40, g: 50, b: 60, l: 255 };
             body.style.background = 'linear-gradient(hsl(221, 25%, 12%), hsl(0, 0%, 0%)) fixed';
             break;
 
@@ -96,10 +96,18 @@ function windowResized() {
 }
 
 function getNumberOfParticles() {
-    if (windowWidth + 100 < particleLimit) {
-        numberOfParticles = windowWidth + 100;
+    if (isMobile) {
+        if (windowWidth / 2 < particleLimit) {
+            numberOfParticles = windowWidth / 2;
+        } else {
+            numberOfParticles = particleLimit;
+        }
     } else {
-        numberOfParticles = particleLimit;
+        if (windowWidth < particleLimit) {
+            numberOfParticles = windowWidth;
+        } else {
+            numberOfParticles = particleLimit;
+        }
     }
 }
 
@@ -128,14 +136,6 @@ function fogTransition(nextFog) {
         }
     }
 
-    if (globalFog.a !== nextFog.a) {
-        if (globalFog.a < nextFog.a) {
-            globalFog.a++;
-        } else {
-            globalFog.a--;
-        }
-    }
-
     if (globalFog.l !== nextFog.l) {
         if (globalFog.l < nextFog.l) {
             globalFog.l++;
@@ -145,63 +145,82 @@ function fogTransition(nextFog) {
     }
 }
 
-// setInterval(() => {
-//     document.getElementById('quantity-display').textContent = raindrops.length;
-// }, 500);
-
 function draw() {
     clear();
-    debug();
+    // debug();
     noSmooth();
-
-    if (weatherType === 0) {
-        sun.update(1);
-    } else {
-        sun.update(-1);
-    }
-
-    if (weatherType === 3) {
-        moon.update(1);
-    } else {
-        moon.update(-1);
-    }
 
     worldRenderer();
 
-    if (weatherType === 1) {
-        strokeWeight(2);
-        fill(100, 100, 255);
-        stroke(100, 100, 255);
-        drawRaindrops(false);
-    } else if (weatherType === 2) {
-        fill(255, 255, 255);
-        noStroke();
-        drawSnowflakes(false);
-    }
+    switch (weatherType) {
+        //? sun
+        case 0:
+            sun.update(1);
 
-    if (weatherType !== 1 && raindrops.length > 0) {
-        if (weatherType === 0) {
             strokeWeight(2);
             fill(200, 200, 255);
             stroke(200, 200, 255);
-        } else {
+            drawRaindrops(true);
+
+            fill(255, 255, 255);
+            noStroke();
+            drawSnowflakes(true);
+
+            drawFireflys(false, true);
+
+            moon.update(-1);
+            break;
+        //? rain
+        case 1:
             strokeWeight(2);
-            fill(100, 100, 255);
-            stroke(100, 100, 255);
-        }
-        drawRaindrops(true);
-        raindrops.pop();
-        raindrops.pop();
-    }
-    if (weatherType !== 2 && snowflakes.length > 0) {
-        fill(255, 255, 255);
-        noStroke();
-        drawSnowflakes(true);
-        snowflakes.pop();
-        // snowflakes.pop();
-    }
-    if (weatherType === 3) {
-        drawFireflys();
+            fill(120, 140, 255);
+            stroke(120, 140, 255);
+            drawRaindrops(false);
+
+            fill(255, 255, 255);
+            noStroke();
+            drawSnowflakes(true);
+
+            drawFireflys(false, true);
+
+            sun.update(-1);
+            moon.update(-1);
+            break;
+        //? snow
+        case 2:
+            fill(255, 255, 255);
+            noStroke();
+            drawSnowflakes(false);
+
+            strokeWeight(2);
+            fill(120, 140, 255);
+            stroke(120, 140, 255);
+            drawRaindrops(true);
+
+            drawFireflys(false, true);
+
+            sun.update(-1);
+            moon.update(-1);
+            break;
+        //? night
+        case 3:
+            moon.update(1);
+            drawFireflys(false, false);
+
+            strokeWeight(2);
+            fill(140, 150, 255);
+            stroke(140, 150, 255);
+            drawRaindrops(true);
+
+            fill(255, 255, 255);
+            noStroke();
+            drawSnowflakes(true);
+
+            sun.update(-1);
+            drawSnowflakes(true);
+            break;
+        default:
+            break;
     }
 
     fogTransition(nextFog);
@@ -216,18 +235,14 @@ function drawRaindrops(stop) {
             newRaindrop.init();
             raindrops.push(newRaindrop);
         }
-    } else if (raindrops.length > numberOfParticles) {
+    } else if (raindrops.length > numberOfParticles || stop) {
         raindrops.pop();
         raindrops.pop();
     }
-
-    // noLoop();
-
     for (let i = raindrops.length - 1; i >= 0; i--) {
         raindrops[i].update();
         raindrops[i].killCheck();
     }
-
     for (let i = sprays.length - 1; i >= 0; i--) {
         sprays[i].update();
         if (sprays[i].isExpired()) {
@@ -247,30 +262,32 @@ function drawSnowflakes(stop) {
             newSnowflakes.init();
             snowflakes.push(newSnowflakes);
         }
-    } else if (snowflakes.length > numberOfParticles) {
+    } else if (snowflakes.length > numberOfParticles || stop) {
         snowflakes.pop();
         snowflakes.pop();
     }
-
-    // noLoop();
-
     for (let i = snowflakes.length - 1; i >= 0; i--) {
-        // allCollisions(raindrops[i]);
         snowflakes[i].update();
         snowflakes[i].killCheck();
     }
 }
 
-function drawFireflys() {
-    if (fireflys.length < 30) {
+function drawFireflys(zLevel, stop) {
+    if (isMobile) {
+        fireflyAmount = 16;
+    } else {
+        fireflyAmount = 52;
+    }
+    if (fireflys.length < fireflyAmount && !stop) {
         if (Math.random() > 0.5) {
-            let newFirefly = new Firefly(random(0, windowWidth), random(windowHeight - 400, windowHeight));
+            let newFirefly = new Firefly(random(0, windowWidth), random(windowHeight - 400, windowHeight), random([true, false]));
             fireflys.push(newFirefly);
         }
+    } else if (stop) {
+        fireflys.pop();
     }
-
     for (let i = fireflys.length - 1; i >= 0; i--) {
-        fireflys[i].update();
+        fireflys[i].update(zLevel);
     }
 }
 
@@ -283,12 +300,12 @@ function drawHitboxes() {
 }
 
 function mousePressed() {
-    console.log(mouseX, mouseY);
-    console.log(windowHeight - mouseY);
+    console.log(`%c ${mouseX}  :  ${windowHeight - mouseY}`, 'color: #ff5599');
 }
 
 function createObjects() {
     let objects = [];
+    let scaler = zoomLevel / 512;
 
     let titleBoundary = document.querySelector('#welcome').getBoundingClientRect();
     let titleObj = {
@@ -297,105 +314,79 @@ function createObjects() {
         x2: titleBoundary.x + titleBoundary.width,
         y2: titleBoundary.y + titleBoundary.height / 4
     };
-    objects.push(titleObj);
-
-    let treeOneLeftTwo = {
-        x1: 1341,
-        y1: windowHeight - 380,
-        x2: 1377,
-        y2: windowHeight - 395
-    };
-
-    let treeOneLeft = {
-        x1: 1376,
-        y1: windowHeight - 440,
-        x2: 1444,
-        y2: windowHeight - 510
-    };
-
-    let treeOneCenter = {
-        x1: 1443,
-        y1: windowHeight - 510,
-        x2: 1524,
-        y2: windowHeight - 440
-    };
-
-    let treeOneRight = {
-        x1: 1521,
-        y1: windowHeight - 400,
-        x2: 1561,
-        y2: windowHeight - 380
-    };
-
-    objects.push(treeOneLeft);
-    objects.push(treeOneLeftTwo);
-    objects.push(treeOneCenter);
-    objects.push(treeOneRight);
-
-    let treeTwoLeftTwo = {
-        x1: 1055,
-        y1: windowHeight - 384,
-        x2: 1100,
-        y2: windowHeight - 446
-    };
-
-    let treeTwoLeft = {
-        x1: 1010,
-        y1: windowHeight - 303,
-        x2: 1053,
-        y2: windowHeight - 341
-    };
-
-    let treeTwoCenter = {
-        x1: 1100,
-        y1: windowHeight - 448,
-        x2: 1177,
-        y2: windowHeight - 374
-    };
-
-    let treeTwoRight = {
-        x1: 1166,
-        y1: windowHeight - 330,
-        x2: 1217,
-        y2: windowHeight - 326
-    };
-
-    objects.push(treeTwoLeft);
-    objects.push(treeTwoLeftTwo);
-    objects.push(treeTwoCenter);
-    objects.push(treeTwoRight);
-
-    let treeThreeLeftTwo = {
-        x1: 670,
-        y1: windowHeight - 290,
-        x2: 723,
-        y2: windowHeight - 376
-    };
-
-    let treeThreeLeft = {
-        x1: 721,
-        y1: windowHeight - 377,
-        x2: 812,
-        y2: windowHeight - 265
-    };
-
-    let treeThreeCenter = {
-        x1: 811,
-        y1: windowHeight - 253,
-        x2: 843,
-        y2: windowHeight - 232
-    };
-
-    objects.push(treeThreeLeft);
-    objects.push(treeThreeLeftTwo);
-    objects.push(treeThreeCenter);
-
     let floor = {
         x1: 0,
         y1: windowHeight - 10,
         x2: windowWidth,
         y2: windowHeight - 10
     };
+
+    objects.push(titleObj);
+
+    if (isMobile) {
+        objects.push(titleObj);
+        objects.push(floor);
+        return objects;
+    }
+
+    //? bustop
+    objects.push({
+        x1: 1323 * scaler,
+        y1: windowHeight - 255 * scaler,
+        x2: 1592 * scaler,
+        y2: windowHeight - 255 * scaler
+    });
+
+    objects.push({
+        x1: 733 * scaler,
+        y1: windowHeight - 361 * scaler,
+        x2: 816 * scaler,
+        y2: windowHeight - 481 * scaler
+    });
+
+    //? tree 2
+    objects.push({
+        x1: 691 * scaler,
+        y1: windowHeight - 224 * scaler,
+        x2: 725 * scaler,
+        y2: windowHeight - 256 * scaler
+    });
+
+    objects.push({
+        x1: 733 * scaler,
+        y1: windowHeight - 361 * scaler,
+        x2: 816 * scaler,
+        y2: windowHeight - 481 * scaler
+    });
+
+    objects.push({
+        x1: 816 * scaler,
+        y1: windowHeight - 482 * scaler,
+        x2: 913 * scaler,
+        y2: windowHeight - 410 * scaler
+    });
+
+    objects.push({
+        x1: 915 * scaler,
+        y1: windowHeight - 345 * scaler,
+        x2: 950 * scaler,
+        y2: windowHeight - 319 * scaler
+    });
+
+    //? tree 1
+    objects.push({
+        x1: 376 * scaler,
+        y1: windowHeight - 268 * scaler,
+        x2: 450 * scaler,
+        y2: windowHeight - 375 * scaler
+    });
+
+    objects.push({
+        x1: 449 * scaler,
+        y1: windowHeight - 374 * scaler,
+        x2: 555 * scaler,
+        y2: windowHeight - 234 * scaler
+    });
 
     objects.push(floor);
     return objects;
