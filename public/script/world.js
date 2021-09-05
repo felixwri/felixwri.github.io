@@ -28,22 +28,16 @@ function worldRenderer() {
     } else if (windowWidth > 925) {
         image(sprites.background, spriteDimentions * 3 + offset, windowHeight - spriteDimentions * 1.5, spriteDimentions * 4, spriteDimentions * 1.5);
     }
-
-    if (spriteDimentions > zoomLevel) {
-        spriteDimentions--;
-    } else if (zoomLevel > spriteDimentions) {
-        spriteDimentions++;
-    }
 }
 
 const timeline = gsap.timeline({ defaults: { ease: 'power1.out' } });
 
-function transitionStart() {
-    timeline.fromTo('#defaultCanvas0', { backgroundColor: 'rgba(33, 33, 33, 0)' }, { backgroundColor: 'rgba(33, 33, 33, 1)', duration: 0.5 });
+function transitionStart(from, to) {
+    timeline.fromTo('#defaultCanvas0', { backgroundColor: `${from}` }, { backgroundColor: `${to}`, duration: 0.5 });
 }
 
-function transitionEnd() {
-    timeline.fromTo('#defaultCanvas0', { backgroundColor: 'rgba(33, 33, 33, 1)' }, { backgroundColor: 'rgba(33, 33, 33, 0)', duration: 0.5 });
+function transitionEnd(from, to) {
+    timeline.fromTo('#defaultCanvas0', { backgroundColor: `${from}` }, { backgroundColor: `${to}`, duration: 0.5 });
 }
 
 function sleep(ms) {

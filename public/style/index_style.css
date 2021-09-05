@@ -7,6 +7,7 @@
 :root {
     --bg-color: hsl(0, 0%, 13%);
     --font-color: hsl(0, 100%, 100%);
+    --welcome-color: rgb(255, 255, 255);
 }
 
 ::-webkit-scrollbar {
@@ -84,7 +85,7 @@ main {
 
 #water-droplet {
     cursor: pointer;
-    fill: white;
+    fill: var(--welcome-color);
 
     transition: fill 0.2s ease;
 }
@@ -95,7 +96,7 @@ main {
 
 #sun {
     cursor: pointer;
-    fill: white;
+    fill: var(--welcome-color);
 
     transition: fill 0.2s ease;
 }
@@ -106,7 +107,7 @@ main {
 
 #moon {
     cursor: pointer;
-    fill: white;
+    fill: var(--welcome-color);
 
     transition: fill 0.2s ease;
 }
@@ -117,7 +118,7 @@ main {
 
 #snowflake {
     cursor: pointer;
-    fill: white;
+    fill: var(--welcome-color);
 
     transition: fill 0.2s ease;
 }
@@ -135,8 +136,10 @@ main {
     top: 100px;
     left: 100px;
     font-size: 3em;
-    color: white;
+    color: var(--welcome-color);
     cursor: pointer;
+
+    transition: color 0.2s ease;
 }
 
 #welcome::before {
@@ -152,17 +155,6 @@ main {
 
 #welcome:hover::before {
     width: 100%;
-}
-
-#magnifine-glass {
-    cursor: pointer;
-    fill: white;
-
-    transition: fill 0.2s ease;
-}
-
-#magnifine-glass:hover {
-    fill: rgb(134, 134, 134);
 }
 
 @media (max-width: 520px) {

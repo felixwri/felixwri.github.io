@@ -6,11 +6,8 @@ class Raindrop {
         this.acceleration = acceleration;
         this.mass = mass;
         this.lifespan = 180;
-        this.reuse = {
-            initX: initialX,
-            initY: initialY,
-            acceleration: acceleration
-        };
+        this.reAcceleration = acceleration;
+
         this.collision;
     }
 
@@ -29,7 +26,7 @@ class Raindrop {
                 };
                 this.velocity.y = vel.y;
                 this.velocity.x = vel.x;
-            } else if (choice > 0.9 && sprays.length < 300) {
+            } else if (choice > 0.9 && sprays.length < 250) {
                 sprays.push(new Spray(this.x, this.y, { x: random(-2, 2), y: random(-2, -0.2) }));
             } else {
                 this.lifespan = -1;
@@ -48,6 +45,7 @@ class Raindrop {
         this.y = this.y + this.velocity.y;
 
         line(this.x, this.y, oldX, oldY);
+
         this.lifespan--;
     }
 
@@ -56,7 +54,7 @@ class Raindrop {
             this.x = random(0, windowWidth);
             this.y = 0;
             this.velocity = { x: 0, y: 0 };
-            this.acceleration = this.reuse.acceleration;
+            this.acceleration = this.reAcceleration;
             this.lifespan = 180;
             this.init();
         } else {
@@ -64,7 +62,7 @@ class Raindrop {
                 this.x = random(0, windowWidth);
                 this.y = 0;
                 this.velocity = { x: 0, y: 0 };
-                this.acceleration = this.reuse.acceleration;
+                this.acceleration = this.reAcceleration;
                 this.lifespan = 180;
                 this.init();
             }

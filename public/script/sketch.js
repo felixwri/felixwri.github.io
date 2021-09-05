@@ -13,8 +13,8 @@ let moon;
 //? Other Global Variables
 let globalFog = { r: 200, g: 200, b: 200, a: 255, l: 0 };
 let nextFog = { r: 200, g: 200, b: 200, a: 255, l: 0 };
-let weatherType = 0;
-// let weatherType = Math.round(Math.random() * 3);
+// let weatherType = 1;
+let weatherType = Math.round(Math.random() * 3);
 let particleLimit = 2000;
 let numberOfParticles;
 let backgroundAlpha = 255;
@@ -54,7 +54,7 @@ function setup() {
     getNumberOfParticles();
 
     weather();
-    transitionEnd();
+    transitionEnd('rgba(33, 33, 33, 1)', 'rgba(33, 33, 33, 0');
 }
 
 function weather() {
@@ -74,8 +74,8 @@ function weather() {
 
         case 2:
             //Snow
-            nextFog = { r: 200, g: 200, b: 200, l: 0 };
-            body.style.background = 'linear-gradient(hsl(225, 26%, 45%), hsl(0, 0%, 45%)) fixed';
+            nextFog = { r: 200, g: 200, b: 220, l: 0 };
+            body.style.background = 'linear-gradient(hsl(225, 26%, 100%), hsl(0, 0%, 0%)) fixed';
             break;
 
         case 3:
@@ -147,15 +147,16 @@ function fogTransition(nextFog) {
 
 function draw() {
     clear();
-    // debug();
+    debug();
+    frameRate(60);
     noSmooth();
-
-    worldRenderer();
 
     switch (weatherType) {
         //? sun
         case 0:
             sun.update(1);
+
+            worldRenderer();
 
             strokeWeight(2);
             fill(200, 200, 255);
@@ -169,9 +170,12 @@ function draw() {
             drawFireflys(false, true);
 
             moon.update(-1);
+
             break;
         //? rain
         case 1:
+            worldRenderer();
+
             strokeWeight(2);
             fill(120, 140, 255);
             stroke(120, 140, 255);
@@ -188,6 +192,8 @@ function draw() {
             break;
         //? snow
         case 2:
+            worldRenderer();
+
             fill(255, 255, 255);
             noStroke();
             drawSnowflakes(false);
@@ -205,6 +211,9 @@ function draw() {
         //? night
         case 3:
             moon.update(1);
+
+            worldRenderer();
+
             drawFireflys(false, false);
 
             strokeWeight(2);
@@ -239,10 +248,12 @@ function drawRaindrops(stop) {
         raindrops.pop();
         raindrops.pop();
     }
+
     for (let i = raindrops.length - 1; i >= 0; i--) {
         raindrops[i].update();
         raindrops[i].killCheck();
     }
+
     for (let i = sprays.length - 1; i >= 0; i--) {
         sprays[i].update();
         if (sprays[i].isExpired()) {
