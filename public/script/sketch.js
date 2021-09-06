@@ -13,8 +13,8 @@ let moon;
 //? Other Global Variables
 let globalFog = { r: 200, g: 200, b: 200, a: 255, l: 0 };
 let nextFog = { r: 200, g: 200, b: 200, a: 255, l: 0 };
-// let weatherType = 1;
-let weatherType = Math.round(Math.random() * 3);
+let weatherType = 1;
+// let weatherType = Math.round(Math.random() * 3);
 let particleLimit = 2000;
 let numberOfParticles;
 let backgroundAlpha = 255;
@@ -29,9 +29,6 @@ function preload() {
 
     sprites.background = loadImage(`public/img/backgroundMaster.png`);
     sprites.foreground = loadImage(`public/img/foregroundMaster.png`);
-
-    sprites.lampCombindedOff = loadImage(`public/img/lampCombindedOff.png`);
-    sprites.lampCombindedOn = loadImage(`public/img/lampCombindedOn.png`);
 
     sprites.sceneOff = loadImage(`public/img/sceneOff.png`);
     sprites.sceneOn = loadImage(`public/img/sceneOn.png`);

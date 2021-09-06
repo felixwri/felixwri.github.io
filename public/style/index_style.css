@@ -175,7 +175,9 @@ main {
 img {
     position: absolute;
     bottom: 0;
-    left: 1000px;
-    width: 512px;
+    left: 0px;
+    width: 1024px;
     image-rendering: pixelated;
+    overflow: hidden;
+    opacity: 50%;
 }

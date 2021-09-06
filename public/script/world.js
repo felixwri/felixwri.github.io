@@ -3,15 +3,6 @@ function worldRenderer() {
     tint(globalFog.r, globalFog.g, globalFog.b);
     image(sprites.background, offset, windowHeight - spriteDimentions * 1.5, spriteDimentions * 4, spriteDimentions * 1.5);
     if (!isMobile) {
-        if (zoomLevel === 256) {
-            image(
-                sprites.background,
-                spriteDimentions * 5 + offset,
-                windowHeight - spriteDimentions * 1.5,
-                spriteDimentions * 4,
-                spriteDimentions * 1.5
-            );
-        }
         image(sprites.background, spriteDimentions * 3 + offset, windowHeight - spriteDimentions * 1.5, spriteDimentions * 4, spriteDimentions * 1.5);
 
         if (weatherType === 3) {
