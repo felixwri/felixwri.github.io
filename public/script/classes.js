@@ -16,13 +16,13 @@ class Raindrop {
         if (!this.collision) console.error('no collisions is impossible');
     }
 
-    update() {
+    update(canvas) {
         if (this.collision.y <= this.y && this.collision.object.x1 < this.x && this.collision.object.x2 > this.x) {
             let choice = Math.random();
             if (choice < 0.5) {
                 let vel = {
                     x: random(-1, 1),
-                    y: random(-2, -0.5)
+                    y: random(-this.velocity.y / 2, -0.5)
                 };
                 this.velocity.y = vel.y;
                 this.velocity.x = vel.x;
@@ -33,7 +33,7 @@ class Raindrop {
             }
         }
 
-        if (this.velocity.y < 9.81) {
+        if (this.velocity.y < 9 + this.mass / 2) {
             this.velocity.x = this.velocity.x + this.acceleration.x;
             this.velocity.y = this.velocity.y + this.acceleration.y;
         }
@@ -44,7 +44,12 @@ class Raindrop {
         this.x = this.x + this.velocity.x;
         this.y = this.y + this.velocity.y;
 
-        line(this.x, this.y, oldX, oldY);
+        canvas.beginPath();
+        canvas.lineTo(oldX, oldY);
+        canvas.lineTo(this.x, this.y);
+        canvas.lineTo(this.x + 2, this.y);
+        canvas.lineTo(this.x + 2, oldY);
+        canvas.fill();
 
         this.lifespan--;
     }

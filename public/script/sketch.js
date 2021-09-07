@@ -11,6 +11,7 @@ let sun;
 let moon;
 
 //? Other Global Variables
+
 let globalFog = { r: 200, g: 200, b: 200, a: 255, l: 0 };
 let nextFog = { r: 200, g: 200, b: 200, a: 255, l: 0 };
 let weatherType = 1;
@@ -246,8 +247,10 @@ function drawRaindrops(stop) {
         raindrops.pop();
     }
 
+    let ctx = canvas.getContext('2d');
+
     for (let i = raindrops.length - 1; i >= 0; i--) {
-        raindrops[i].update();
+        raindrops[i].update(ctx);
         raindrops[i].killCheck();
     }
 
