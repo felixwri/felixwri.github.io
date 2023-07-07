@@ -16,7 +16,7 @@ let globalFog = { r: 200, g: 200, b: 200, a: 255, l: 0 };
 let nextFog = { r: 200, g: 200, b: 200, a: 255, l: 0 };
 let weatherType = 1;
 // let weatherType = Math.round(Math.random() * 3);
-let particleLimit = 2000;
+let particleLimit = 800;
 let numberOfParticles;
 let backgroundAlpha = 255;
 let spriteDimentions = 512;
