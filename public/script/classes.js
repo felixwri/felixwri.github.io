@@ -1,13 +1,34 @@
 import * as Pixi from './pixi.js';
+import { state } from './state.js';
+
+class Line {
+    constructor(x1, y1, x2, y2, opacity = 1, depth = 0) {
+        this.x1 = x1;
+        this.y1 = y2;
+        this.x2 = x2;
+        this.y2 = y2;
+        // The chance that the line will stop a thing
+        this.opacity = opacity;
+        // The variance in the stopping point
+        this.depth = depth;
+        this.quantity = 0;
+    }
+}
 
 class Snowflake {
     constructor(sprite, pos, vel, mass) {
+        this.initial = {};
+        this.initial.y = pos.y;
+        this.initial.x = pos.x;
+        this.initial.alpha = sprite.alpha;
         this.pos = pos;
         this.vel = vel;
         this.acc = 0.001;
         this.maxVelocity = 0.1 * mass;
         this.finalPos = null;
 
+        this.lifespan = 0;
+        this.maxLifespan = 1200 + Math.round(Math.random() * 22000);
         this.sprite = sprite;
     }
 
@@ -19,34 +40,65 @@ class Snowflake {
             y2: 10_000
         };
         let closestPoint = null;
+        let closestLine = null;
         for (let line of lines) {
+            if (Math.random() > line.opacity) {
+                continue;
+            }
             let intercept = interceptLines(trajectory, line);
             if (intercept) {
+                if (line.depth !== 0) {
+                    intercept.y += Math.random() * line.depth;
+                }
                 if (!closestPoint || intercept.y < closestPoint.y) {
                     closestPoint = intercept;
+                    closestLine = line;
                 }
             }
         }
-
+        if (closestPoint === null) return;
+        closestLine.quantity++;
         this.finalPos = closestPoint;
     }
 
-    update() {
+    reset() {
+        this.pos.x = Math.random() * state.width;
+        this.pos.y = this.initial.y;
+        this.acc = 0.001;
+        this.maxVelocity = 0.1 * this.initial.mass;
+        this.lifespan = 0;
+        this.sprite.alpha = this.initial.alpha;
+    }
+
+    fadout() {
+        if (this.sprite.alpha > 0) {
+            this.sprite.alpha -= 0.001;
+        } else {
+            this.reset();
+        }
+    }
+
+    update(delta) {
+        this.lifespan++;
+        if (this.lifespan > this.maxLifespan) {
+            this.fadout();
+        }
+        if (this.finalPos) {
+            if (this.pos.y > this.finalPos.y) {
+                this.pos.y = this.finalPos.y;
+                return;
+            }
+        }
         // console.log(this.pos.y);
         // console.log(this.finalPos);
         this.sprite.x = this.pos.x;
         this.sprite.y = this.pos.y;
 
-        this.pos.x += this.vel.x;
-        this.pos.y += this.vel.y;
+        this.pos.x += this.vel.x * delta;
+        this.pos.y += this.vel.y * delta;
 
         if (this.vel.y < this.maxVelocity) {
-            this.vel.y += this.acc;
-        }
-        if (this.finalPos) {
-            if (this.pos.y > this.finalPos.y) {
-                this.pos.y = this.finalPos.y;
-            }
+            this.vel.y += this.acc * delta;
         }
     }
 }
@@ -74,76 +126,83 @@ function interceptLines(line, lineTwo) {
     return false;
 }
 
+function lineBuilder() {
+    const x = (n) => n;
+    const y = (n) => n;
+
+    let lines = [
+        // ground
+        new Line(0, state.height, state.width, state.height, 1, -5),
+        new Line(x(21), y(30), x(33), y(30), 0.5, 10)
+    ];
+    return lines;
+}
+function displayLines(lines) {
+    let graphics = new Pixi.Graphics();
+    graphics.lineStyle(1, 0xffffff, 0.5);
+    for (let line of lines) {
+        graphics.moveTo(line.x1, line.y1);
+        graphics.lineTo(line.x2, line.y2);
+    }
+    return graphics;
+}
+
 export class SnowShower {
     constructor(app) {
-        this.LIMIT = 2000;
+        this.limit = state.width * 10;
         this.app = app;
         this.graphics = new Pixi.Graphics();
         this.app.stage.addChild(this.graphics);
 
-        this.snowflakeTexture = Pixi.Texture.from('public/img/snowflake.webp');
+        this.snowflakeTexture = Pixi.Texture.from('public/img/snowflake.png');
 
-        this.dimensions = {
-            width: window.innerWidth / app.stage.scaleFactor,
-            height: window.innerHeight / app.stage.scaleFactor
-        };
-
-        let ground = {
-            x1: 0,
-            y1: 126,
-            x2: this.dimensions.width,
-            y2: 126
-        };
-
-        let tree = {
-            x1: 20,
-            y1: 47,
-            x2: 28,
-            y2: 47
-        };
-        let tree2 = {
-            x1: 14,
-            y1: 56,
-            x2: 20,
-            y2: 47
-        };
-
-        this.lines = [ground, tree, tree2];
+        this.lines = lineBuilder();
+        this.app.stage.addChild(displayLines(this.lines));
 
         this.snowflakes = [];
-        for (let i = 0; i < 2000; i++) {
+        for (let i = 0; i < this.limit; i++) {
             this.spawnSnowflake();
         }
+    }
+
+    recalculate() {
+        this.limit = state.width * 10;
     }
 
     spawnSnowflake() {
         const snowflakeSprite = Pixi.Sprite.from(this.snowflakeTexture);
 
-        let randomSize = 1 + Math.random() * 2;
+        let distance = Math.random();
+        let randomSize = 1 + distance + Math.random();
 
         snowflakeSprite.width = randomSize;
         snowflakeSprite.height = randomSize;
         snowflakeSprite.tint = 0xffffff;
-        snowflakeSprite.alpha = Math.random();
+        snowflakeSprite.alpha = 0.1 + distance;
         snowflakeSprite.anchor.set(0.5);
         snowflakeSprite.rotation = Math.random() * Math.PI * 2;
 
         this.app.stage.addChild(snowflakeSprite);
 
-        let randomHeight = Math.random() * this.dimensions.width * 2;
-        let randomWidth = Math.random() * this.dimensions.width;
-        let maxVelocity = (0.2 + Math.random() * 1) / 10;
-        let randomMass = 0.5 + Math.random();
+        let randomHeight = Math.random() * state.width * 2;
+        let randomWidth = Math.random() * state.width;
+        let randomVelocity = (0.2 + Math.random() * 1) / 10;
+        let randomMass = 0.1 + distance * 0.5 + Math.random() * 0.5;
 
-        let s = new Snowflake(snowflakeSprite, { x: randomWidth, y: -randomHeight }, { x: 0, y: maxVelocity }, randomMass);
+        let s = new Snowflake(snowflakeSprite, { x: randomWidth, y: -randomHeight }, { x: 0, y: randomVelocity }, randomMass);
         s.precalculate(this.lines);
+        s.update(1);
         this.snowflakes.push(s);
     }
 
-    update() {
+    update(delta) {
         this.graphics.clear();
         for (let snowflake of this.snowflakes) {
-            snowflake.update();
+            snowflake.update(delta);
+        }
+
+        if (this.snowflakes.length < this.limit) {
+            this.spawnSnowflake();
         }
     }
 }

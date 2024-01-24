@@ -1,5 +1,6 @@
 import * as PIXI from './pixi.js';
-import { buildWorld } from './world.js';
+import { state } from './state.js';
+import { World } from './world.js';
 import { SnowShower } from './classes.js';
 const app = new PIXI.Application({ resizeTo: window });
 document.getElementById('canvas-container').appendChild(app.view);
@@ -8,21 +9,26 @@ PIXI.BaseTexture.defaultOptions.scaleMode = PIXI.SCALE_MODES.NEAREST;
 
 app.renderer.background.color = 0x333333;
 
-function scale(virtualHeight = 128) {
-    let SCALE_FACTOR = window.innerHeight / virtualHeight;
-    app.stage.scaleFactor = SCALE_FACTOR;
-    app.stage.scale = { x: app.stage.scaleFactor, y: app.stage.scaleFactor };
-}
+state.init(app);
 
-scale();
-buildWorld(app);
+let world = new World(app);
 let snow = new SnowShower(app);
 
-app.ticker.add(() => {
-    snow.update();
+app.ticker.add((delta) => {
+    snow.update(delta);
 });
 
+document.documentElement.style.setProperty('--welcome-color', 'rgb(128, 128, 128)');
+
 window.addEventListener('click', (e) => {
-    let sf = window.innerHeight / 128;
-    console.log(e.clientX / sf, e.clientY / sf);
+    let x = Math.round(e.clientX / state.scaleFactor);
+    let y = Math.round(e.clientY / state.scaleFactor);
+
+    console.log(x, y);
+});
+
+window.addEventListener('resize', (e) => {
+    state.scale();
+    snow.recalculate();
+    world.recalculate();
 });
