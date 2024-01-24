@@ -1,371 +1,149 @@
-class Raindrop {
-    constructor(initialX, initialY, acceleration, mass) {
-        this.x = initialX;
-        this.y = initialY;
-        this.velocity = { x: 0, y: 0 };
-        this.acceleration = acceleration;
-        this.mass = mass;
-        this.lifespan = 180;
-        this.reAcceleration = acceleration;
-
-        this.collision;
-    }
-
-    init() {
-        this.collision = allCollisions(this.x, this.y);
-        if (!this.collision) console.error('no collisions is impossible');
-    }
-
-    update(canvas) {
-        if (this.collision.y <= this.y && this.collision.object.x1 < this.x && this.collision.object.x2 > this.x) {
-            let choice = Math.random();
-            if (choice < 0.5) {
-                let vel = {
-                    x: random(-1, 1),
-                    y: random(-this.velocity.y / 2, -0.5)
-                };
-                this.velocity.y = vel.y;
-                this.velocity.x = vel.x;
-            } else if (choice > 0.9 && sprays.length < 250) {
-                sprays.push(new Spray(this.x, this.y, { x: random(-2, 2), y: random(-2, -0.2) }));
-            } else {
-                this.lifespan = -1;
-            }
-        }
-
-        if (this.velocity.y < 9 + this.mass / 2) {
-            this.velocity.x = this.velocity.x + this.acceleration.x;
-            this.velocity.y = this.velocity.y + this.acceleration.y;
-        }
-
-        let oldX = this.x;
-        let oldY = this.y;
-
-        this.x = this.x + this.velocity.x;
-        this.y = this.y + this.velocity.y;
-
-        canvas.beginPath();
-        canvas.lineTo(oldX, oldY);
-        canvas.lineTo(this.x, this.y);
-        canvas.lineTo(this.x + 2, this.y);
-        canvas.lineTo(this.x + 2, oldY);
-        canvas.fill();
-
-        this.lifespan--;
-    }
-
-    killCheck() {
-        if (this.y > windowHeight || this.x > windowWidth) {
-            this.x = random(0, windowWidth);
-            this.y = 0;
-            this.velocity = { x: 0, y: 0 };
-            this.acceleration = this.reAcceleration;
-            this.lifespan = 180;
-            this.init();
-        } else {
-            if (this.lifespan < 0) {
-                this.x = random(0, windowWidth);
-                this.y = 0;
-                this.velocity = { x: 0, y: 0 };
-                this.acceleration = this.reAcceleration;
-                this.lifespan = 180;
-                this.init();
-            }
-            return;
-        }
-    }
-}
-
-class Spray {
-    constructor(x, y, velocity) {
-        this.x = x;
-        this.y = y;
-        this.velocity = velocity;
-
-        this.mass = random(10, 30);
-
-        this.lifespan = 100;
-    }
-
-    update() {
-        this.x = this.x + this.velocity.x / 2;
-        this.y = this.y + this.velocity.y / 2;
-
-        fill(100, 100, 255, this.lifespan / 4);
-        noStroke();
-        circle(this.x, this.y, this.mass);
-
-        this.lifespan--;
-    }
-
-    isExpired() {
-        if (this.lifespan <= 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-}
-
-class Smoke {
-    constructor(x, y, width, height, velocity, sprite) {
-        this.x = x;
-        this.y = y;
-        this.velocity = velocity;
-        this.sprite = sprite;
-
-        this.width = width;
-        this.height = height;
-    }
-
-    update() {
-        this.x += this.velocity.x;
-        this.y += (noise(this.y) - 0.5) / 2;
-
-        image(this.sprite, this.x, this.y - this.height, this.width, this.height);
-
-        if (this.y > windowHeight) {
-            this.y = windowHeight - 100;
-        } else if (this.x > windowWidth || this.x < -200) {
-            this.x = 100;
-        }
-    }
-}
-
-class Sun {
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
-        this.rise = 0;
-    }
-    update(amount) {
-        tint(255, 230, 230, this.rise);
-        image(sprites.sun, this.x, this.y, 256, 256);
-
-        if (amount === 1) {
-            if (this.rise < 255) this.rise += amount;
-        } else {
-            if (this.rise > 0) this.rise += amount;
-        }
-    }
-}
-
-class Moon {
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
-        this.rise = 0;
-    }
-    update(amount) {
-        tint(255, 230, 230, this.rise);
-        image(sprites.moon, this.x, this.y, 128, 128);
-
-        if (amount === 1) {
-            if (this.rise < 255) this.rise += amount;
-        } else {
-            if (this.rise > 0) this.rise += amount;
-        }
-    }
-}
+import * as Pixi from './pixi.js';
 
 class Snowflake {
-    constructor(initialX, initialY, acceleration, mass) {
-        this.x = initialX;
-        this.y = initialY;
-        this.velocity = { x: 0, y: 0 };
-        this.acceleration = acceleration;
-        this.mass = mass;
-        this.lifespan = 1250;
+    constructor(sprite, pos, vel, mass) {
+        this.pos = pos;
+        this.vel = vel;
+        this.acc = 0.001;
+        this.maxVelocity = 0.1 * mass;
+        this.finalPos = null;
 
-        this.collision;
+        this.sprite = sprite;
     }
 
-    init() {
-        this.collision = allCollisions(this.x, this.y);
-        if (!this.collision) console.error('no collisions is impossible');
+    precalculate(lines) {
+        let trajectory = {
+            x1: this.pos.x,
+            y1: this.pos.y,
+            x2: this.pos.x,
+            y2: 10_000
+        };
+        let closestPoint = null;
+        for (let line of lines) {
+            let intercept = interceptLines(trajectory, line);
+            if (intercept) {
+                if (!closestPoint || intercept.y < closestPoint.y) {
+                    closestPoint = intercept;
+                }
+            }
+        }
+
+        this.finalPos = closestPoint;
     }
 
     update() {
-        if (this.collision.y <= this.y && this.collision.object.x1 < this.x && this.collision.object.x2 > this.x && Math.random() > 0.9) {
-            this.velocity.y = 0;
-            this.acceleration.y = 0;
+        // console.log(this.pos.y);
+        // console.log(this.finalPos);
+        this.sprite.x = this.pos.x;
+        this.sprite.y = this.pos.y;
+
+        this.pos.x += this.vel.x;
+        this.pos.y += this.vel.y;
+
+        if (this.vel.y < this.maxVelocity) {
+            this.vel.y += this.acc;
         }
-
-        if (this.velocity.y < 2 * (1 + this.mass)) {
-            this.velocity.x = this.velocity.x + this.acceleration.x;
-            this.velocity.y = this.velocity.y + this.acceleration.y;
-        }
-
-        this.x = this.x + this.velocity.x;
-        this.y = this.y + this.velocity.y;
-
-        // strokeWeight(this.mass);
-        fill(255, 255, 255, this.lifespan);
-        circle(this.x, this.y, this.mass * 30);
-        this.lifespan--;
-    }
-
-    killCheck() {
-        if (this.lifespan < 0 || this.y > windowHeight || this.x > windowWidth) {
-            this.x = random(0, windowWidth);
-            this.y = -30;
-            this.velocity = { x: 0, y: random(0, 0.1) };
-            this.acceleration = { x: 0, y: this.mass / 50 };
-            this.lifespan = random(1000, 2000);
-            this.init();
-        }
-        return;
-    }
-}
-
-class Firefly {
-    constructor(initialX, initialY, zLevel) {
-        this.x = initialX;
-        this.y = initialY;
-        this.velocity = { x: random(-0.1, 0.1), y: random(-0.1, 0.1) };
-        this.zLevel = zLevel;
-
-        this.lifespan = 0;
-
-        this.size = random([16, 24, 32]);
-    }
-
-    update(zLevel) {
-        if (this.zLevel !== zLevel) return;
-        this.x = this.x + this.velocity.x;
-        this.y = this.y + this.velocity.y;
-
-        if (Math.random() > 0.999) {
-            this.velocity = { x: random(-0.1, 0.1), y: random(-0.1, 0.1) };
-        }
-
-        if (this.lifespan < 255) {
-            this.lifespan++;
-        }
-
-        tint(255, 255, 255, this.lifespan);
-
-        if (isMobile) {
-            smooth();
-            image(sprites.firefly, this.x * (spriteDimentions / 256), this.y, spriteDimentions / this.size, spriteDimentions / this.size);
-        } else {
-            smooth();
-            image(sprites.firefly, this.x * (spriteDimentions / 512), this.y, spriteDimentions / this.size, spriteDimentions / this.size);
+        if (this.finalPos) {
+            if (this.pos.y > this.finalPos.y) {
+                this.pos.y = this.finalPos.y;
+            }
         }
     }
 }
 
-function reflection(collisionLine, collisionPoint) {
-    // calculate the normal to the collision line
-    let dx = collisionLine.x2 - collisionLine.x1;
-    let dy = collisionLine.y2 - collisionLine.y1;
+function interceptLines(line, lineTwo) {
+    let v1, v2, v3, u;
+    v1 = {};
+    v2 = {};
+    v3 = {};
+    v1.x = line.x2 - line.x1; // vector of line
+    v1.y = line.y2 - line.y1;
+    v2.x = lineTwo.x2 - lineTwo.x1; //vector of line2
+    v2.y = lineTwo.y2 - lineTwo.y1;
+    let c = v1.x * v2.y - v1.y * v2.x; // cross of the two vectors
+    if (c !== 0) {
+        let lambda = ((lineTwo.y2 - lineTwo.y1) * (lineTwo.x2 - line.x1) + (lineTwo.x1 - lineTwo.x2) * (lineTwo.y2 - line.y1)) / c;
+        let gamma = ((line.y1 - line.y2) * (lineTwo.x2 - line.x1) + (line.x2 - line.x1) * (lineTwo.y2 - line.y1)) / c;
+        if (!(0 < lambda && lambda < 1 && 0 < gamma && gamma < 1)) return false;
 
-    let normal = {
-        x1: -dy + collisionPoint.x,
-        y1: dx + collisionPoint.y,
-        x2: dy + collisionPoint.x,
-        y2: -dx + collisionPoint.y
-    };
-    line(normal.x1, normal.y1, normal.x2, normal.y2);
-
-    let p0 = collisionPoint;
-
-    let x0 = normal.x1;
-    let y0 = normal.y1;
-
-    let x1 = normal.x2;
-    let y1 = normal.y2;
-
-    dx = x1 - x0;
-    dy = y1 - y0;
-
-    let a = (dx * dx - dy * dy) / (dx * dx + dy * dy);
-    let b = (2 * dx * dy) / (dx * dx + dy * dy);
-
-    let x2 = Math.round(a * (p0.x - x0) + b * (p0.y - y0) + x0);
-    let y2 = Math.round(b * (p0.x - x0) - a * (p0.y - y0) + y0);
-
-    let p1 = {
-        x: x2,
-        y: y2
-    };
-
-    line(p0.x, p0.y, p1.x, p1.y);
-
-    let velocity = {
-        x: p1.x - p0.x,
-        y: -(p1.y - p0.y)
-    };
-    // console.log(velocity);
-    return velocity;
-}
-
-function allCollisions(x, y) {
-    let trajectory = {
-        x1: x,
-        y1: y,
-        x2: x,
-        y2: windowHeight + 20
-    };
-
-    for (let i = 0; i < objects.length; i++) {
-        let collision = raycaster(trajectory, objects[i]);
-        if (collision !== false) return collision;
+        v3.x = line.x1 - lineTwo.x1;
+        v3.y = line.y1 - lineTwo.y1;
+        u = (v2.x * v3.y - v2.y * v3.x) / c; // unit distance of intercept point on this line
+        return { x: line.x1 + v1.x * u, y: line.y1 + v1.y * u };
     }
-
-    console.error('no collision');
     return false;
 }
 
-//* 54.769
-//* 71.985
+export class SnowShower {
+    constructor(app) {
+        this.LIMIT = 2000;
+        this.app = app;
+        this.graphics = new Pixi.Graphics();
+        this.app.stage.addChild(this.graphics);
 
-function raycaster(lineOne, lineTwo) {
-    const x1 = lineOne.x1;
-    const y1 = lineOne.y1;
-    const x2 = lineOne.x2;
-    const y2 = lineOne.y2;
+        this.snowflakeTexture = Pixi.Texture.from('public/img/snowflake.webp');
 
-    const x3 = lineTwo.x1;
-    const y3 = lineTwo.y1;
-    const x4 = lineTwo.x2;
-    const y4 = lineTwo.y2;
-
-    // line(x1, y1, x2, y2);
-    // line(x3, y3, x4, y4);
-
-    const den = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
-    if (den == 0) {
-        return false;
-    }
-
-    const t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / den;
-    const u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / den;
-
-    if (t > 0 && t < 1 && u > 0) {
-        const pt = {
-            x: x1 + t * (x2 - x1),
-            y: y1 + t * (y2 - y1),
-            path: {
-                x1: x1,
-                y1: y1,
-                x2: x2,
-                y2: y2
-            },
-            object: {
-                x1: x3,
-                y1: y3,
-                x2: x4,
-                y2: y4
-            }
+        this.dimensions = {
+            width: window.innerWidth / app.stage.scaleFactor,
+            height: window.innerHeight / app.stage.scaleFactor
         };
 
-        if (x3 < pt.x && pt.x < x4) {
-            return pt;
-        }
+        let ground = {
+            x1: 0,
+            y1: 126,
+            x2: this.dimensions.width,
+            y2: 126
+        };
 
-        return false;
-    } else {
-        return false;
+        let tree = {
+            x1: 20,
+            y1: 47,
+            x2: 28,
+            y2: 47
+        };
+        let tree2 = {
+            x1: 14,
+            y1: 56,
+            x2: 20,
+            y2: 47
+        };
+
+        this.lines = [ground, tree, tree2];
+
+        this.snowflakes = [];
+        for (let i = 0; i < 2000; i++) {
+            this.spawnSnowflake();
+        }
+    }
+
+    spawnSnowflake() {
+        const snowflakeSprite = Pixi.Sprite.from(this.snowflakeTexture);
+
+        let randomSize = 1 + Math.random() * 2;
+
+        snowflakeSprite.width = randomSize;
+        snowflakeSprite.height = randomSize;
+        snowflakeSprite.tint = 0xffffff;
+        snowflakeSprite.alpha = Math.random();
+        snowflakeSprite.anchor.set(0.5);
+        snowflakeSprite.rotation = Math.random() * Math.PI * 2;
+
+        this.app.stage.addChild(snowflakeSprite);
+
+        let randomHeight = Math.random() * this.dimensions.width * 2;
+        let randomWidth = Math.random() * this.dimensions.width;
+        let maxVelocity = (0.2 + Math.random() * 1) / 10;
+        let randomMass = 0.5 + Math.random();
+
+        let s = new Snowflake(snowflakeSprite, { x: randomWidth, y: -randomHeight }, { x: 0, y: maxVelocity }, randomMass);
+        s.precalculate(this.lines);
+        this.snowflakes.push(s);
+    }
+
+    update() {
+        this.graphics.clear();
+        for (let snowflake of this.snowflakes) {
+            snowflake.update();
+        }
     }
 }

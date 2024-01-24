@@ -1,133 +1,156 @@
 <!DOCTYPE html>
 <html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" type="text/css" href="public/style/index_style.css" />
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap" rel="stylesheet" />
+        <script type="module" src="public/script/main.js" defer></script>
+        <script type="module" src="public/script/world.js" defer></script>
+        <script type="module" src="public/script/classes.js" defer></script>
+        <script type="module" src="public/script/debug.js" defer></script>
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="public/style/index_style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/p5@1.4.0/lib/p5.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.7.1/gsap.min.js"
-        integrity="sha512-UxP+UhJaGRWuMG2YC6LPWYpFQnsSgnor0VUF3BHdD83PS/pOpN+FYbZmrYN+ISX8jnvgVUciqP/fILOXDjZSwg=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
-    <script src="public/script/sketch.js" defer></script>
-    <script src="public/script/world.js" defer></script>
-    <script src="public/script/classes.js" defer></script>
-    <script src="public/script/debug.js" defer></script>
+        <title>FelixWri</title>
+    </head>
 
-    <title>FelixWri</title>
-</head>
+    <body>
+        <div id="canvas-container"></div>
 
-<body>
-    <div id="canvas-container"></div>
+        <main>
+            <span id="welcome" onclick="toggleSettings()">felixwri.github.io</span>
+            <div id="settings-container">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    onclick="toggleSun()"
+                    id="sun"
+                    enable-background="new 0 0 24 24"
+                    height="32px"
+                    viewBox="0 0 24 24"
+                    width="32px"
+                    fill="#FFFFFF"
+                >
+                    <rect fill="none" height="24" width="24" />
+                    <path
+                        d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"
+                    />
+                </svg>
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    onclick="toggleNight()"
+                    id="moon"
+                    enable-background="new 0 0 24 24"
+                    height="32px"
+                    viewBox="0 0 24 24"
+                    width="32px"
+                    fill="#FFFFFF"
+                >
+                    <rect fill="none" height="24" width="24" />
+                    <path
+                        d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"
+                    />
+                </svg>
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    onclick="toggleWater()"
+                    id="water-droplet"
+                    enable-background="new 0 0 24 24"
+                    height="32px"
+                    viewBox="0 0 24 24"
+                    width="32px"
+                    fill="#FFFFFF"
+                >
+                    <rect fill="none" height="24" width="24" />
+                    <path
+                        d="M12,2c-5.33,4.55-8,8.48-8,11.8c0,4.98,3.8,8.2,8,8.2s8-3.22,8-8.2C20,10.48,17.33,6.55,12,2z M12,20c-3.35,0-6-2.57-6-6.2 c0-2.34,1.95-5.44,6-9.14c4.05,3.7,6,6.79,6,9.14C18,17.43,15.35,20,12,20z M7.83,14c0.37,0,0.67,0.26,0.74,0.62 c0.41,2.22,2.28,2.98,3.64,2.87c0.43-0.02,0.79,0.32,0.79,0.75c0,0.4-0.32,0.73-0.72,0.75c-2.13,0.13-4.62-1.09-5.19-4.12 C7.01,14.42,7.37,14,7.83,14z"
+                    />
+                </svg>
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    onclick="toggleSnow()"
+                    id="snowflake"
+                    height="32px"
+                    viewBox="0 0 24 24"
+                    width="32px"
+                    fill="#FFFFFF"
+                >
+                    <path d="M0 0h24v24H0V0z" fill="none" />
+                    <path
+                        d="M21 11h-3.17l2.54-2.54c.39-.39.39-1.02 0-1.41-.39-.39-1.03-.39-1.42 0L15 11h-2V9l3.95-3.95c.39-.39.39-1.03 0-1.42-.39-.39-1.02-.39-1.41 0L13 6.17V3c0-.55-.45-1-1-1s-1 .45-1 1v3.17L8.46 3.63c-.39-.39-1.02-.39-1.41 0-.39.39-.39 1.03 0 1.42L11 9v2H9L5.05 7.05c-.39-.39-1.03-.39-1.42 0-.39.39-.39 1.02 0 1.41L6.17 11H3c-.55 0-1 .45-1 1s.45 1 1 1h3.17l-2.54 2.54c-.39.39-.39 1.02 0 1.41.39.39 1.03.39 1.42 0L9 13h2v2l-3.95 3.95c-.39.39-.39 1.03 0 1.42.39.39 1.02.39 1.41 0L11 17.83V21c0 .55.45 1 1 1s1-.45 1-1v-3.17l2.54 2.54c.39.39 1.02.39 1.41 0 .39-.39.39-1.03 0-1.42L13 15v-2h2l3.95 3.95c.39.39 1.03.39 1.42 0 .39-.39.39-1.02 0-1.41L17.83 13H21c.55 0 1-.45 1-1s-.45-1-1-1z"
+                    />
+                </svg>
 
-    <main>
-        <span id="welcome" onclick="toggleSettings()">felixwri.github.io</span>
-        <div id="settings-container">
-            <svg xmlns="http://www.w3.org/2000/svg" onclick="toggleSun()" id="sun" enable-background="new 0 0 24 24"
-                height="32px" viewBox="0 0 24 24" width="32px" fill="#FFFFFF">
-                <rect fill="none" height="24" width="24" />
-                <path
-                    d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z" />
-            </svg>
-            <svg xmlns="http://www.w3.org/2000/svg" onclick="toggleNight()" id="moon" enable-background="new 0 0 24 24"
-                height="32px" viewBox="0 0 24 24" width="32px" fill="#FFFFFF">
-                <rect fill="none" height="24" width="24" />
-                <path
-                    d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z" />
-            </svg>
-            <svg xmlns="http://www.w3.org/2000/svg" onclick="toggleWater()" id="water-droplet"
-                enable-background="new 0 0 24 24" height="32px" viewBox="0 0 24 24" width="32px" fill="#FFFFFF">
-                <rect fill="none" height="24" width="24" />
-                <path
-                    d="M12,2c-5.33,4.55-8,8.48-8,11.8c0,4.98,3.8,8.2,8,8.2s8-3.22,8-8.2C20,10.48,17.33,6.55,12,2z M12,20c-3.35,0-6-2.57-6-6.2 c0-2.34,1.95-5.44,6-9.14c4.05,3.7,6,6.79,6,9.14C18,17.43,15.35,20,12,20z M7.83,14c0.37,0,0.67,0.26,0.74,0.62 c0.41,2.22,2.28,2.98,3.64,2.87c0.43-0.02,0.79,0.32,0.79,0.75c0,0.4-0.32,0.73-0.72,0.75c-2.13,0.13-4.62-1.09-5.19-4.12 C7.01,14.42,7.37,14,7.83,14z" />
-            </svg>
-            <svg xmlns="http://www.w3.org/2000/svg" onclick="toggleSnow()" id="snowflake" height="32px"
-                viewBox="0 0 24 24" width="32px" fill="#FFFFFF">
-                <path d="M0 0h24v24H0V0z" fill="none" />
-                <path
-                    d="M21 11h-3.17l2.54-2.54c.39-.39.39-1.02 0-1.41-.39-.39-1.03-.39-1.42 0L15 11h-2V9l3.95-3.95c.39-.39.39-1.03 0-1.42-.39-.39-1.02-.39-1.41 0L13 6.17V3c0-.55-.45-1-1-1s-1 .45-1 1v3.17L8.46 3.63c-.39-.39-1.02-.39-1.41 0-.39.39-.39 1.03 0 1.42L11 9v2H9L5.05 7.05c-.39-.39-1.03-.39-1.42 0-.39.39-.39 1.02 0 1.41L6.17 11H3c-.55 0-1 .45-1 1s.45 1 1 1h3.17l-2.54 2.54c-.39.39-.39 1.02 0 1.41.39.39 1.03.39 1.42 0L9 13h2v2l-3.95 3.95c-.39.39-.39 1.03 0 1.42.39.39 1.02.39 1.41 0L11 17.83V21c0 .55.45 1 1 1s1-.45 1-1v-3.17l2.54 2.54c.39.39 1.02.39 1.41 0 .39-.39.39-1.03 0-1.42L13 15v-2h2l3.95 3.95c.39.39 1.03.39 1.42 0 .39-.39.39-1.02 0-1.41L17.83 13H21c.55 0 1-.45 1-1s-.45-1-1-1z" />
-            </svg>
-
-            <script>
-                let element = document.getElementById("settings-container")
-                element.style.opacity = 1;
-                function toggleSettings() {
-                    let element = document.getElementById("settings-container")
-                    if (element.style.opacity == "1") {
-                        element.style.opacity = "0";
-                        element.style.top = "100px";
-                    } else {
-                        element.style.opacity = "1";
-                        element.style.top = "150px";
-                    }
-
-                }
-                async function toggleWater() {
-                    if (weatherType !== 1) {
-                        transitionStart("hsla(221, 25%, 24%, 0)", "hsla(221, 25%, 24%, 1)");
-                        weatherType = 1;
-                        await sleep(500);
-                        document.documentElement.style.setProperty("--welcome-color", "rgb(255, 255, 255)");
-                        weather();
-
-                        transitionEnd("hsla(221, 25%, 24%, 1)", "hsla(221, 25%, 24%, 0)");
-
-                    } else if (weatherType === 1) {
-                        let element = document.getElementById("water-droplet");
-                        if (numberOfParticles > 0) {
-                            numberOfParticles = 0;
-                            element.style.fill = "rgb(255, 111, 171)";
+                <script>
+                    let element = document.getElementById('settings-container');
+                    element.style.opacity = 1;
+                    function toggleSettings() {
+                        let element = document.getElementById('settings-container');
+                        if (element.style.opacity == '1') {
+                            element.style.opacity = '0';
+                            element.style.top = '100px';
                         } else {
-                            element.style.fill = null;
-                            getNumberOfParticles();
+                            element.style.opacity = '1';
+                            element.style.top = '150px';
                         }
                     }
-                }
+                    async function toggleWater() {
+                        if (weatherType !== 1) {
+                            transitionStart('hsla(221, 25%, 24%, 0)', 'hsla(221, 25%, 24%, 1)');
+                            weatherType = 1;
+                            await sleep(500);
+                            document.documentElement.style.setProperty('--welcome-color', 'rgb(255, 255, 255)');
+                            weather();
 
-                async function toggleSun() {
-                    if (weatherType !== 0) {
-                        transitionStart("hsla(224, 60%, 57%, 0)", "hsla(224, 50%, 57%, 1)");
-                        weatherType = 0;
-                        await sleep(500);
-                        document.documentElement.style.setProperty("--welcome-color", "rgb(255, 255, 255)");
-                        weather();
-
-                        transitionEnd("hsla(224, 50%, 57%, 1)", "hsla(224, 60%, 57%, 0)");
-
+                            transitionEnd('hsla(221, 25%, 24%, 1)', 'hsla(221, 25%, 24%, 0)');
+                        } else if (weatherType === 1) {
+                            let element = document.getElementById('water-droplet');
+                            if (numberOfParticles > 0) {
+                                numberOfParticles = 0;
+                                element.style.fill = 'rgb(255, 111, 171)';
+                            } else {
+                                element.style.fill = null;
+                                getNumberOfParticles();
+                            }
+                        }
                     }
-                }
 
-                async function toggleSnow() {
+                    async function toggleSun() {
+                        if (weatherType !== 0) {
+                            transitionStart('hsla(224, 60%, 57%, 0)', 'hsla(224, 50%, 57%, 1)');
+                            weatherType = 0;
+                            await sleep(500);
+                            document.documentElement.style.setProperty('--welcome-color', 'rgb(255, 255, 255)');
+                            weather();
 
-                    if (weatherType !== 2) {
-                        transitionStart("rgba(200, 200, 200, 0)", "rgba(200, 200, 200, 1)");
-                        weatherType = 2;
-                        await sleep(500);
-                        document.documentElement.style.setProperty("--welcome-color", "rgb(0, 0, 0)");
-                        weather();
-
-                        transitionEnd("rgba(200, 200, 200, 1)", "rgba(200, 200, 200, 0)");
-
+                            transitionEnd('hsla(224, 50%, 57%, 1)', 'hsla(224, 60%, 57%, 0)');
+                        }
                     }
-                }
 
-                async function toggleNight() {
-                    if (weatherType !== 3) {
-                        transitionStart("rgba(33, 33, 33, 0)", "rgba(33 , 33, 33, 1)");
-                        weatherType = 3;
-                        await sleep(500);
-                        document.documentElement.style.setProperty("--welcome-color", "rgb(255, 200, 180)");
-                        weather();
+                    async function toggleSnow() {
+                        if (weatherType !== 2) {
+                            transitionStart('rgba(200, 200, 200, 0)', 'rgba(200, 200, 200, 1)');
+                            weatherType = 2;
+                            await sleep(500);
+                            document.documentElement.style.setProperty('--welcome-color', 'rgb(0, 0, 0)');
+                            weather();
 
-                        transitionEnd("rgba(33, 33, 33, 1)", "rgba(33 , 33, 33, 0)");
-
+                            transitionEnd('rgba(200, 200, 200, 1)', 'rgba(200, 200, 200, 0)');
+                        }
                     }
-                }
-            </script>
-        </div>
-    </main>
-</body>
 
+                    async function toggleNight() {
+                        if (weatherType !== 3) {
+                            transitionStart('rgba(33, 33, 33, 0)', 'rgba(33 , 33, 33, 1)');
+                            weatherType = 3;
+                            await sleep(500);
+                            document.documentElement.style.setProperty('--welcome-color', 'rgb(255, 200, 180)');
+                            weather();
+
+                            transitionEnd('rgba(33, 33, 33, 1)', 'rgba(33 , 33, 33, 0)');
+                        }
+                    }
+                </script>
+            </div>
+        </main>
+    </body>
 </html>

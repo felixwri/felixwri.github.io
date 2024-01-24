@@ -1,36 +1,52 @@
-function worldRenderer() {
-    const offset = -100;
-    tint(globalFog.r, globalFog.g, globalFog.b);
-    image(sprites.background, offset, windowHeight - spriteDimentions * 1.5, spriteDimentions * 4, spriteDimentions * 1.5);
-    if (!isMobile) {
-        image(sprites.background, spriteDimentions * 3 + offset, windowHeight - spriteDimentions * 1.5, spriteDimentions * 4, spriteDimentions * 1.5);
+import * as PIXI from './pixi.js';
+export function buildWorld(app) {
+    function getSprite(url) {
+        let sprite = PIXI.Sprite.from(url);
+        sprite.anchor.set(0, 1);
 
-        if (weatherType === 3) {
-            drawFireflys(true, false);
-            noSmooth();
-            tint(globalFog.r, globalFog.g, globalFog.b);
-        }
-        image(sprites.foreground, offset, windowHeight - spriteDimentions, spriteDimentions * 4, spriteDimentions);
-        image(sprites.sceneOff, spriteDimentions / 1.5 + offset, windowHeight - spriteDimentions, spriteDimentions * 3, spriteDimentions);
-
-        tint(255, globalFog.l);
-
-        image(sprites.sceneOn, spriteDimentions / 1.5 + offset, windowHeight - spriteDimentions, spriteDimentions * 3, spriteDimentions);
-    } else if (windowWidth > 925) {
-        image(sprites.background, spriteDimentions * 3 + offset, windowHeight - spriteDimentions * 1.5, spriteDimentions * 4, spriteDimentions * 1.5);
+        sprite.x = 0;
+        sprite.y = 128;
+        return sprite;
     }
-}
 
-const timeline = gsap.timeline({ defaults: { ease: 'power1.out' } });
+    function createGradTexture() {
+        const quality = 512;
+        const canvas = document.createElement('canvas');
 
-function transitionStart(from, to) {
-    timeline.fromTo('#defaultCanvas0', { backgroundColor: `${from}` }, { backgroundColor: `${to}`, duration: 0.5 });
-}
+        canvas.width = quality;
+        canvas.height = 1;
 
-function transitionEnd(from, to) {
-    timeline.fromTo('#defaultCanvas0', { backgroundColor: `${from}` }, { backgroundColor: `${to}`, duration: 0.5 });
-}
+        const ctx = canvas.getContext('2d');
+        const grd = ctx.createLinearGradient(0, 0, quality, 0);
 
-function sleep(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+        grd.addColorStop(0, 'rgb(105, 112, 125)');
+        grd.addColorStop(1, 'rgb(36, 36, 36)');
+
+        ctx.fillStyle = grd;
+        ctx.fillRect(0, 0, quality, 1);
+        let gradient = new PIXI.Sprite(PIXI.Texture.from(canvas));
+
+        gradient.anchor.set(0.5, 0.5);
+        gradient.x = virtualWidth / 2;
+        gradient.y = 64;
+        gradient.width = 128;
+        gradient.height = virtualWidth;
+        gradient.rotation = Math.PI / 2;
+        return gradient;
+    }
+
+    const virtualWidth = window.innerWidth / app.stage.scaleFactor;
+
+    let gradient = createGradTexture();
+
+    let background = getSprite('/public/img/backgroundMaster.png');
+    let foreground = getSprite('/public/img/foregroundMaster.png');
+    let dark = getSprite('/public/img/sceneOff.png');
+    let light = getSprite('/public/img/sceneOn.png');
+
+    app.stage.addChild(gradient);
+    app.stage.addChild(background);
+    app.stage.addChild(foreground);
+    app.stage.addChild(dark);
+    app.stage.addChild(light);
 }
